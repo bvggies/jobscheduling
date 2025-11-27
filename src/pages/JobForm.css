@@ -63,6 +63,24 @@
   color: var(--primary-color);
 }
 
+.date-time-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.date-time-group .form-control {
+  flex: 1;
+}
+
+.form-hint {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;

@@ -357,15 +357,30 @@ const Jobs = () => {
                   <td>{job.product_type}</td>
                   <td>{job.quantity.toLocaleString()}</td>
                   <td>
-                    <span
-                      className={
-                        new Date(job.due_date) < new Date() && job.status !== 'Completed'
-                          ? 'text-danger'
-                          : ''
-                      }
-                    >
-                      {format(new Date(job.due_date), 'MMM dd, yyyy')}
-                    </span>
+                    <div>
+                      <span
+                        className={
+                          (() => {
+                            if (job.status === 'Completed') return '';
+                            const dueDate = new Date(job.due_date);
+                            const now = new Date();
+                            if (job.due_time) {
+                              const [hours, minutes] = job.due_time.split(':');
+                              dueDate.setHours(parseInt(hours), parseInt(minutes), 0);
+                              return dueDate < now ? 'text-danger' : '';
+                            }
+                            return dueDate < now ? 'text-danger' : '';
+                          })()
+                        }
+                      >
+                        {format(new Date(job.due_date), 'MMM dd, yyyy')}
+                      </span>
+                      {job.due_time && (
+                        <div className="text-secondary" style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                          ⏰ {job.due_time}
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td>
                     <span

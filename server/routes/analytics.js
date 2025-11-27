@@ -10,12 +10,30 @@ router.get('/', async (req, res) => {
       ? `WHERE j.due_date BETWEEN '${start_date}' AND '${end_date}'`
       : '';
 
-    // On-time completion rate
+    // On-time completion rate (considering both date and time)
     const completionRate = await db.query(`
       SELECT 
         COUNT(*) as total,
-        SUM(CASE WHEN j.status = 'Completed' AND j.due_date >= CURRENT_DATE THEN 1 ELSE 0 END) as on_time,
-        SUM(CASE WHEN j.status = 'Completed' AND j.due_date < CURRENT_DATE THEN 1 ELSE 0 END) as late
+        SUM(CASE 
+          WHEN j.status = 'Completed' THEN
+            CASE 
+              WHEN j.due_time IS NOT NULL THEN
+                CASE WHEN (j.due_date::text || ' ' || j.due_time::text)::timestamp >= CURRENT_TIMESTAMP THEN 1 ELSE 0 END
+              ELSE
+                CASE WHEN j.due_date >= CURRENT_DATE THEN 1 ELSE 0 END
+            END
+          ELSE 0
+        END) as on_time,
+        SUM(CASE 
+          WHEN j.status = 'Completed' THEN
+            CASE 
+              WHEN j.due_time IS NOT NULL THEN
+                CASE WHEN (j.due_date::text || ' ' || j.due_time::text)::timestamp < CURRENT_TIMESTAMP THEN 1 ELSE 0 END
+              ELSE
+                CASE WHEN j.due_date < CURRENT_DATE THEN 1 ELSE 0 END
+            END
+          ELSE 0
+        END) as late
       FROM jobs j
       ${dateFilter}
     `);
@@ -34,13 +52,21 @@ router.get('/', async (req, res) => {
       ORDER BY m.name
     `);
 
-    // Late jobs
+    // Late jobs (considering both date and time)
     const lateJobs = await db.query(`
       SELECT j.*, m.name as machine_name
       FROM jobs j
       LEFT JOIN machines m ON j.machine_id = m.id
-      WHERE j.due_date < CURRENT_DATE AND j.status != 'Completed'
-      ORDER BY j.due_date ASC
+      WHERE j.status != 'Completed'
+        AND (
+          (j.due_time IS NOT NULL AND (j.due_date::text || ' ' || j.due_time::text)::timestamp < CURRENT_TIMESTAMP)
+          OR (j.due_time IS NULL AND j.due_date < CURRENT_DATE)
+        )
+      ORDER BY 
+        CASE 
+          WHEN j.due_time IS NOT NULL THEN (j.due_date::text || ' ' || j.due_time::text)::timestamp
+          ELSE j.due_date::timestamp
+        END ASC
     `);
 
     // Jobs by status
@@ -106,6 +132,58 @@ router.get('/', async (req, res) => {
       LIMIT 6
     `);
 
+    // Completion time analytics
+    const completionTimeStats = await db.query(`
+      SELECT 
+        COUNT(*) as total_jobs_with_time,
+        AVG(EXTRACT(EPOCH FROM (
+          CASE 
+            WHEN j.due_time IS NOT NULL AND j.status = 'Completed' THEN
+              j.updated_at::timestamp - (j.due_date::text || ' ' || j.due_time::text)::timestamp
+            ELSE NULL
+          END
+        )) / 3600) as avg_hours_late,
+        COUNT(CASE 
+          WHEN j.due_time IS NOT NULL 
+            AND j.status = 'Completed' 
+            AND (j.due_date::text || ' ' || j.due_time::text)::timestamp < j.updated_at::timestamp
+          THEN 1 
+        END) as late_completions,
+        COUNT(CASE 
+          WHEN j.due_time IS NOT NULL 
+            AND j.status = 'Completed' 
+            AND (j.due_date::text || ' ' || j.due_time::text)::timestamp >= j.updated_at::timestamp
+          THEN 1 
+        END) as on_time_completions
+      FROM jobs j
+      WHERE j.due_time IS NOT NULL
+      ${dateFilter}
+    `);
+
+    // Jobs by completion time status
+    const timeBasedStatus = await db.query(`
+      SELECT 
+        CASE 
+          WHEN j.due_time IS NOT NULL AND j.status != 'Completed' THEN
+            CASE 
+              WHEN (j.due_date::text || ' ' || j.due_time::text)::timestamp < CURRENT_TIMESTAMP THEN 'Overdue'
+              WHEN (j.due_date::text || ' ' || j.due_time::text)::timestamp <= CURRENT_TIMESTAMP + INTERVAL '2 hours' THEN 'Due Soon'
+              ELSE 'On Track'
+            END
+          WHEN j.due_time IS NULL AND j.status != 'Completed' THEN
+            CASE 
+              WHEN j.due_date < CURRENT_DATE THEN 'Overdue'
+              WHEN j.due_date = CURRENT_DATE THEN 'Due Today'
+              ELSE 'On Track'
+            END
+          ELSE 'Completed'
+        END as time_status,
+        COUNT(*) as count
+      FROM jobs j
+      ${dateFilter}
+      GROUP BY time_status
+    `);
+
     res.json({
       completionRate: completionRate.rows[0],
       utilization: utilization.rows,
@@ -115,6 +193,8 @@ router.get('/', async (req, res) => {
       revenueByCustomer: revenueByCustomer.rows,
       revenueByProduct: revenueByProduct.rows,
       revenueByMonth: revenueByMonth.rows,
+      completionTime: completionTimeStats.rows[0],
+      timeBasedStatus: timeBasedStatus.rows,
     });
   } catch (error) {
     console.error('Error fetching analytics:', error);

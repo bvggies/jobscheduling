@@ -27,6 +27,7 @@ const JobForm = () => {
     substrate: '',
     finishing: [],
     due_date: '',
+    due_time: '',
     priority: 'Medium',
     total_cost: '',
     deposit_required: '',
@@ -52,6 +53,7 @@ const JobForm = () => {
         substrate: job.substrate || '',
         finishing: job.finishing || [],
         due_date: job.due_date ? job.due_date.split('T')[0] : '',
+        due_time: job.due_time || '',
         priority: job.priority || 'Medium',
         total_cost: job.total_cost || '',
         deposit_required: job.deposit_required || '',
@@ -247,14 +249,26 @@ const JobForm = () => {
             </div>
             <div className="form-group">
               <label className="form-label">Due Date *</label>
-              <input
-                type="date"
-                name="due_date"
-                value={formData.due_date}
-                onChange={handleChange}
-                className="form-control"
-                required
-              />
+              <div className="date-time-group">
+                <input
+                  type="date"
+                  name="due_date"
+                  value={formData.due_date}
+                  onChange={handleChange}
+                  className="form-control"
+                  required
+                />
+                <input
+                  type="time"
+                  name="due_time"
+                  value={formData.due_time}
+                  onChange={handleChange}
+                  className="form-control"
+                  placeholder="Completion Time (Optional)"
+                  title="Time the job must be completed"
+                />
+              </div>
+              <small className="form-hint">Add a time to track completion deadlines more precisely</small>
             </div>
             <div className="form-group">
               <label className="form-label">Priority *</label>

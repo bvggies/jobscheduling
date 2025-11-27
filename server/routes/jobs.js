@@ -79,6 +79,7 @@ router.post('/', async (req, res) => {
       substrate,
       finishing,
       due_date,
+      due_time,
       priority,
       total_cost,
       deposit_required,
@@ -95,8 +96,8 @@ router.post('/', async (req, res) => {
     const result = await db.query(
       `INSERT INTO jobs (
         job_name, po_number, customer_name, product_type, quantity,
-        substrate, finishing, due_date, priority, total_cost, deposit_required
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        substrate, finishing, due_date, due_time, priority, total_cost, deposit_required
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *`,
       [
         job_name,
@@ -107,6 +108,7 @@ router.post('/', async (req, res) => {
         substrate,
         finishing || [],
         due_date,
+        due_time || null,
         priority,
         parseFloat(total_cost) || 0,
         parseFloat(deposit_required) || 0,
@@ -154,6 +156,7 @@ router.put('/:id', async (req, res) => {
       substrate,
       finishing,
       due_date,
+      due_time,
       priority,
       status,
       machine_id,
@@ -179,21 +182,22 @@ router.put('/:id', async (req, res) => {
         substrate = COALESCE($6, substrate),
         finishing = COALESCE($7, finishing),
         due_date = COALESCE($8, due_date),
-        priority = COALESCE($9, priority),
-        status = COALESCE($10, status),
-        machine_id = COALESCE($11, machine_id),
-        scheduled_start = COALESCE($12, scheduled_start),
-        scheduled_end = COALESCE($13, scheduled_end),
-        total_cost = COALESCE($14, total_cost),
-        deposit_required = COALESCE($15, deposit_required),
-        deposit_received = COALESCE($16, deposit_received),
-        deposit_date = COALESCE($17, deposit_date),
-        deposit_status = COALESCE($18, deposit_status),
-        final_payment_received = COALESCE($19, final_payment_received),
-        final_payment_date = COALESCE($20, final_payment_date),
-        payment_status = COALESCE($21, payment_status),
+        due_time = COALESCE($9, due_time),
+        priority = COALESCE($10, priority),
+        status = COALESCE($11, status),
+        machine_id = COALESCE($12, machine_id),
+        scheduled_start = COALESCE($13, scheduled_start),
+        scheduled_end = COALESCE($14, scheduled_end),
+        total_cost = COALESCE($15, total_cost),
+        deposit_required = COALESCE($16, deposit_required),
+        deposit_received = COALESCE($17, deposit_received),
+        deposit_date = COALESCE($18, deposit_date),
+        deposit_status = COALESCE($19, deposit_status),
+        final_payment_received = COALESCE($20, final_payment_received),
+        final_payment_date = COALESCE($21, final_payment_date),
+        payment_status = COALESCE($22, payment_status),
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $22
+      WHERE id = $23
       RETURNING *`,
       [
         job_name,
@@ -204,6 +208,7 @@ router.put('/:id', async (req, res) => {
         substrate,
         finishing,
         due_date,
+        due_time,
         priority,
         status,
         machine_id,

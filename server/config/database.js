@@ -75,6 +75,7 @@ const initializeDatabase = async () => {
         substrate VARCHAR(255) NOT NULL,
         finishing TEXT[],
         due_date DATE NOT NULL,
+        due_time TIME,
         priority VARCHAR(20) NOT NULL CHECK (priority IN ('Low', 'Medium', 'High', 'Rush')),
         status VARCHAR(20) DEFAULT 'Not Started' CHECK (status IN ('Not Started', 'Ready', 'In Progress', 'Completed')),
         machine_id INTEGER REFERENCES machines(id) ON DELETE SET NULL,

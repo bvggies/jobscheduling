@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { analyticsAPI } from '../services/api';
 import { format } from 'date-fns';
-import { FiTrendingUp, FiAlertTriangle, FiBarChart2, FiDollarSign, FiUsers, FiPackage } from 'react-icons/fi';
+import { FiTrendingUp, FiAlertTriangle, FiBarChart2, FiDollarSign, FiUsers, FiPackage, FiClock } from 'react-icons/fi';
 import './Analytics.css';
 
 const Analytics = () => {
@@ -227,6 +227,96 @@ const Analytics = () => {
             </div>
           </div>
         </motion.div>
+
+        {analytics.completionTime && analytics.completionTime.total_jobs_with_time > 0 && (
+          <motion.div
+            className="card analytics-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <div className="analytics-card-header">
+              <FiClock className="analytics-icon" style={{ color: '#8b5cf6' }} />
+              <h2>Completion Time Analytics</h2>
+            </div>
+            <div className="analytics-card-body">
+              <div className="metric-details">
+                <div className="metric-detail">
+                  <span className="metric-label">Jobs with Time</span>
+                  <span className="metric-value">
+                    {analytics.completionTime.total_jobs_with_time || 0}
+                  </span>
+                </div>
+                <div className="metric-detail">
+                  <span className="metric-label">On Time</span>
+                  <span className="metric-value" style={{ color: '#10b981' }}>
+                    {analytics.completionTime.on_time_completions || 0}
+                  </span>
+                </div>
+                <div className="metric-detail">
+                  <span className="metric-label">Late</span>
+                  <span className="metric-value text-danger">
+                    {analytics.completionTime.late_completions || 0}
+                  </span>
+                </div>
+              </div>
+              {analytics.completionTime.avg_hours_late && (
+                <div className="revenue-breakdown" style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+                  <div className="revenue-item">
+                    <span>Avg Hours Late:</span>
+                    <strong style={{ color: analytics.completionTime.avg_hours_late > 0 ? '#ef4444' : '#10b981' }}>
+                      {parseFloat(analytics.completionTime.avg_hours_late || 0).toFixed(1)} hrs
+                    </strong>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {analytics.timeBasedStatus && analytics.timeBasedStatus.length > 0 && (
+          <motion.div
+            className="card analytics-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="analytics-card-header">
+              <FiClock className="analytics-icon" />
+              <h2>Time-Based Status</h2>
+            </div>
+            <div className="analytics-card-body">
+              <div className="status-breakdown">
+                {analytics.timeBasedStatus.map((status) => {
+                  const statusColors = {
+                    'Overdue': '#ef4444',
+                    'Due Soon': '#f59e0b',
+                    'Due Today': '#f59e0b',
+                    'On Track': '#10b981',
+                    'Completed': '#3b82f6'
+                  };
+                  return (
+                    <div key={status.time_status} className="status-item">
+                      <div className="status-info">
+                        <span className="status-name">{status.time_status}</span>
+                        <span className="status-count">{status.count}</span>
+                      </div>
+                      <div className="status-bar">
+                        <div
+                          className="status-bar-fill"
+                          style={{
+                            width: `${(status.count / analytics.completionRate?.total) * 100}%`,
+                            backgroundColor: statusColors[status.time_status] || '#6b7280'
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
 
       <div className="analytics-grid">
