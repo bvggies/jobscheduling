@@ -15,10 +15,22 @@ You should see:
 ```
 Server is running on port 5000
 Database connection established
+Connected to: ep-cool-grass-ahisn1s9-pooler.c-3.us-east-1.aws.neon.tech
 Database tables initialized successfully
 ```
 
 **Keep this terminal running!** Don't close it.
+
+### Verify Database Connection (Optional)
+
+Before starting the server, you can test the Neon database connection:
+
+```bash
+cd server
+node verify-db.js
+```
+
+This will verify your Neon database connection and show existing tables.
 
 ### Terminal 2: Frontend
 

@@ -5,7 +5,10 @@ dotenv.config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  // Neon requires SSL - enable it for all environments
+  ssl: process.env.DATABASE_URL?.includes('neon.tech') 
+    ? { rejectUnauthorized: false } 
+    : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false),
   // Optimize for serverless
   max: 1, // Limit connections for serverless
   idleTimeoutMillis: 30000,
@@ -28,11 +31,21 @@ const query = (text, params) => pool.query(text, params);
 
 const connect = async () => {
   try {
-    await pool.query('SELECT NOW()');
+    const result = await pool.query('SELECT NOW()');
     console.log('Database connection established');
+    console.log('Connected to:', process.env.DATABASE_URL?.split('@')[1]?.split('/')[0] || 'database');
     await initializeDatabase();
   } catch (error) {
-    console.error('Database connection error:', error);
+    console.error('Database connection error:', error.message);
+    if (error.code === 'ENOTFOUND') {
+      console.error('❌ Cannot resolve database host. Check your DATABASE_URL.');
+    } else if (error.code === 'ECONNREFUSED') {
+      console.error('❌ Connection refused. Check if database is accessible.');
+    } else if (error.message.includes('SSL')) {
+      console.error('❌ SSL connection error. Neon requires SSL - check your connection string includes ?sslmode=require');
+    } else {
+      console.error('❌ Database error details:', error);
+    }
   }
 };
 
