@@ -11,11 +11,14 @@ This guide will help you deploy the JobScheduler application to Vercel with Neon
 
 ## Step 1: Set Up Neon PostgreSQL Database
 
-1. Go to [Neon Console](https://console.neon.tech/)
-2. Sign up or log in
-3. Create a new project
-4. Copy the connection string (it will look like: `postgresql://user:password@host/database?sslmode=require`)
-5. **Save this connection string** - you'll need it for Vercel environment variables
+✅ **Your Neon database is already set up!**
+
+Your connection string:
+```
+postgresql://neondb_owner:npg_c6tLUkaby9dT@ep-cool-grass-ahisn1s9-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require
+```
+
+**Note:** This connection string is already configured and ready to use in Vercel.
 
 ## Step 2: Prepare Your Code
 
@@ -45,8 +48,10 @@ This guide will help you deploy the JobScheduler application to Vercel with Neon
 5. **Add Environment Variables**:
    - Click "Environment Variables"
    - Add the following:
-     - `DATABASE_URL`: Your Neon PostgreSQL connection string
+     - `DATABASE_URL`: `postgresql://neondb_owner:npg_c6tLUkaby9dT@ep-cool-grass-ahisn1s9-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require`
+       - Environment: **Production, Preview, Development** (select all)
      - `NODE_ENV`: `production`
+       - Environment: **Production**
      - `REACT_APP_API_URL`: Leave empty for now (we'll set it after first deploy)
 
 6. Click "Deploy"
