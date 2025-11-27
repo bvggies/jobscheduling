@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { jobsAPI } from '../services/api';
 import { STATUSES, PRIORITY_COLORS, STATUS_COLORS } from '../utils/constants';
-import { FiPlus, FiEdit, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiEdit, FiTrash2, FiCheckCircle, FiPlay, FiClock } from 'react-icons/fi';
 import { format } from 'date-fns';
 import './Jobs.css';
 
@@ -44,6 +44,46 @@ const Jobs = () => {
         console.error('Error deleting job:', error);
         alert('Failed to delete job');
       }
+    }
+  };
+
+  const handleStatusChange = async (jobId, newStatus, currentJob) => {
+    // Validate: Cannot mark as Ready without deposit
+    if (newStatus === 'Ready' && currentJob.deposit_status !== 'Received') {
+      alert('Cannot mark job as Ready. Deposit must be received first.');
+      return;
+    }
+
+    try {
+      await jobsAPI.updateStatus(jobId, newStatus);
+      loadJobs();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to update status';
+      alert(`Failed to update status: ${errorMessage}`);
+    }
+  };
+
+  const getNextStatus = (currentStatus) => {
+    const statusFlow = {
+      'Not Started': ['Ready', 'In Progress'],
+      'Ready': ['In Progress', 'Completed'],
+      'In Progress': ['Completed'],
+      'Completed': []
+    };
+    return statusFlow[currentStatus] || [];
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'Ready':
+        return <FiClock />;
+      case 'In Progress':
+        return <FiPlay />;
+      case 'Completed':
+        return <FiCheckCircle />;
+      default:
+        return null;
     }
   };
 
@@ -197,15 +237,53 @@ const Jobs = () => {
                     </span>
                   </td>
                   <td>
-                    <span
-                      className="badge"
-                      style={{
-                        backgroundColor: `${STATUS_COLORS[job.status]}20`,
-                        color: STATUS_COLORS[job.status],
-                      }}
-                    >
-                      {job.status}
-                    </span>
+                    <div className="status-cell">
+                      <span
+                        className="badge"
+                        style={{
+                          backgroundColor: `${STATUS_COLORS[job.status]}20`,
+                          color: STATUS_COLORS[job.status],
+                        }}
+                      >
+                        {job.status}
+                      </span>
+                      <div className="status-actions">
+                        {getNextStatus(job.status).map((nextStatus) => (
+                          <button
+                            key={nextStatus}
+                            onClick={() => handleStatusChange(job.id, nextStatus, job)}
+                            className="status-btn"
+                            title={`Mark as ${nextStatus}`}
+                            style={{
+                              backgroundColor: `${STATUS_COLORS[nextStatus]}20`,
+                              color: STATUS_COLORS[nextStatus],
+                            }}
+                          >
+                            {getStatusIcon(nextStatus)}
+                            <span>{nextStatus}</span>
+                          </button>
+                        ))}
+                        {getNextStatus(job.status).length === 0 && job.status !== 'Completed' && (
+                          <select
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                handleStatusChange(job.id, e.target.value, job);
+                                e.target.value = '';
+                              }
+                            }}
+                            className="status-select"
+                            title="Change status"
+                          >
+                            <option value="">Change...</option>
+                            {STATUSES.filter(s => s !== job.status).map((status) => (
+                              <option key={status} value={status}>
+                                {status}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
+                    </div>
                   </td>
                   <td>
                     <div className="payment-status">
