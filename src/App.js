@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import './App.css';
@@ -15,18 +15,31 @@ import Schedule from './pages/Schedule';
 import Analytics from './pages/Analytics';
 import Alerts from './pages/Alerts';
 
+// Component to refresh AOS on route change
+function AOSRefresh() {
+  const location = useLocation();
+  
+  useEffect(() => {
+    AOS.refresh();
+  }, [location]);
+
+  return null;
+}
+
 function App() {
   useEffect(() => {
     AOS.init({
       duration: 1000,
       easing: 'ease-in-out',
-      once: true,
+      once: false, // Changed to false so animations can replay
+      mirror: false,
     });
   }, []);
 
   return (
     <Router>
       <div className="App">
+        <AOSRefresh />
         <Navbar />
         <div className="app-container">
           <Sidebar />

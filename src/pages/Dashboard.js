@@ -94,7 +94,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="dashboard" data-aos="fade-up">
+    <motion.div 
+      className="dashboard"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="dashboard-header">
         <h1>Dashboard</h1>
         <p>Welcome to your job scheduling dashboard</p>
@@ -108,7 +113,7 @@ const Dashboard = () => {
               key={stat.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
             >
               <Link to={stat.link} className="stat-card">
                 <div className="stat-icon" style={{ backgroundColor: `${stat.color}20`, color: stat.color }}>
@@ -129,7 +134,7 @@ const Dashboard = () => {
           className="card"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
         >
           <div className="card-header">
             <h2 className="card-title">Recent Jobs</h2>
@@ -222,7 +227,7 @@ const Dashboard = () => {
           </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
