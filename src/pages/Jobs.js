@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { jobsAPI, machinesAPI } from '../services/api';
 import { STATUSES, PRIORITY_COLORS, STATUS_COLORS } from '../utils/constants';
-import { FiPlus, FiEdit, FiTrash2, FiCheckCircle, FiPlay, FiClock, FiCopy, FiDownload } from 'react-icons/fi';
+import { FiPlus, FiEdit, FiTrash2, FiCheckCircle, FiPlay, FiClock, FiCopy, FiDownload, FiDollarSign } from 'react-icons/fi';
 import { format } from 'date-fns';
 import './Jobs.css';
 
@@ -21,6 +21,8 @@ const Jobs = () => {
   const [customers, setCustomers] = useState([]);
   const [customerSuggestions, setCustomerSuggestions] = useState([]);
   const [machines, setMachines] = useState([]);
+  const [paymentModal, setPaymentModal] = useState({ show: false, job: null, type: null });
+  const [paymentData, setPaymentData] = useState({ amount: '', date: new Date().toISOString().split('T')[0] });
 
   const loadJobs = useCallback(async () => {
     try {
@@ -211,6 +213,40 @@ const Jobs = () => {
     if (job.payment_status === 'Paid') return 'Fully Paid';
     if (job.deposit_status === 'Received') return 'Deposit Received';
     return 'Deposit Pending';
+  };
+
+  const handlePaymentUpdate = async () => {
+    if (!paymentData.amount || parseFloat(paymentData.amount) <= 0) {
+      alert('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      await jobsAPI.updatePayment(paymentModal.job.id, paymentModal.type, paymentData.amount, paymentData.date);
+      setPaymentModal({ show: false, job: null, type: null });
+      setPaymentData({ amount: '', date: new Date().toISOString().split('T')[0] });
+      loadJobs();
+      alert('Payment updated successfully!');
+    } catch (error) {
+      console.error('Error updating payment:', error);
+      alert('Failed to update payment');
+    }
+  };
+
+  const openPaymentModal = (job, type) => {
+    setPaymentModal({ show: true, job, type });
+    if (type === 'deposit') {
+      setPaymentData({ 
+        amount: (job.deposit_required || 0) - (job.deposit_received || 0),
+        date: new Date().toISOString().split('T')[0]
+      });
+    } else {
+      const balanceDue = (job.total_cost || 0) - (job.deposit_received || 0);
+      setPaymentData({ 
+        amount: balanceDue - (job.final_payment_received || 0),
+        date: new Date().toISOString().split('T')[0]
+      });
+    }
   };
 
   if (loading) {
@@ -443,9 +479,31 @@ const Jobs = () => {
                     </div>
                   </td>
                   <td>
-                    <div className="payment-status">
-                      <span className="payment-icon">{getPaymentIcon(job)}</span>
-                      <span className="payment-text">{getPaymentStatus(job)}</span>
+                    <div className="payment-status-cell">
+                      <div className="payment-status">
+                        <span className="payment-icon">{getPaymentIcon(job)}</span>
+                        <span className="payment-text">{getPaymentStatus(job)}</span>
+                      </div>
+                      <div className="payment-actions">
+                        {job.deposit_status !== 'Received' && job.deposit_required > 0 && (
+                          <button
+                            onClick={() => openPaymentModal(job, 'deposit')}
+                            className="payment-action-btn"
+                            title="Record Deposit"
+                          >
+                            <FiDollarSign /> Deposit
+                          </button>
+                        )}
+                        {job.payment_status !== 'Paid' && job.deposit_status === 'Received' && (
+                          <button
+                            onClick={() => openPaymentModal(job, 'final')}
+                            className="payment-action-btn"
+                            title="Record Final Payment"
+                          >
+                            <FiDollarSign /> Final
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td>
@@ -507,6 +565,83 @@ const Jobs = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Payment Modal */}
+      {paymentModal.show && paymentModal.job && (
+        <div className="modal-overlay" onClick={() => setPaymentModal({ show: false, job: null, type: null })}>
+          <motion.div
+            className="modal-content"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h3>
+                Record {paymentModal.type === 'deposit' ? 'Deposit' : 'Final'} Payment
+              </h3>
+              <button 
+                onClick={() => setPaymentModal({ show: false, job: null, type: null })} 
+                className="modal-close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Job: {paymentModal.job.job_name}</label>
+              </div>
+              {paymentModal.type === 'deposit' && (
+                <div className="form-group">
+                  <label>Deposit Required: ${(paymentModal.job.deposit_required || 0).toFixed(2)}</label>
+                  <label>Already Received: ${(paymentModal.job.deposit_received || 0).toFixed(2)}</label>
+                </div>
+              )}
+              {paymentModal.type === 'final' && (
+                <div className="form-group">
+                  <label>Total Cost: ${(paymentModal.job.total_cost || 0).toFixed(2)}</label>
+                  <label>Balance Due: ${((paymentModal.job.total_cost || 0) - (paymentModal.job.deposit_received || 0) - (paymentModal.job.final_payment_received || 0)).toFixed(2)}</label>
+                </div>
+              )}
+              <div className="form-group">
+                <label>Amount *</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={paymentData.amount}
+                  onChange={(e) => setPaymentData({ ...paymentData, amount: e.target.value })}
+                  className="form-control"
+                  placeholder="Enter amount"
+                  autoFocus
+                />
+              </div>
+              <div className="form-group">
+                <label>Date *</label>
+                <input
+                  type="date"
+                  value={paymentData.date}
+                  onChange={(e) => setPaymentData({ ...paymentData, date: e.target.value })}
+                  className="form-control"
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                onClick={() => setPaymentModal({ show: false, job: null, type: null })}
+                className="btn btn-outline"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePaymentUpdate}
+                className="btn btn-primary"
+              >
+                <FiDollarSign /> Record Payment
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 };
