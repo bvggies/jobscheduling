@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { jobsAPI, machinesAPI } from '../services/api';
+import { jobsAPI } from '../services/api';
 import {
   PRIORITIES,
   PRODUCT_TYPES,
@@ -33,30 +32,10 @@ const JobForm = () => {
     status: 'Not Started',
   });
 
-  const [machines, setMachines] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loadingMachines, setLoadingMachines] = useState(true);
   const [currentJob, setCurrentJob] = useState(null);
 
-  useEffect(() => {
-    loadMachines();
-    if (isEdit) {
-      loadJob();
-    }
-  }, [id]);
-
-  const loadMachines = async () => {
-    try {
-      const response = await machinesAPI.getAll();
-      setMachines(response.data);
-      setLoadingMachines(false);
-    } catch (error) {
-      console.error('Error loading machines:', error);
-      setLoadingMachines(false);
-    }
-  };
-
-  const loadJob = async () => {
+  const loadJob = useCallback(async () => {
     try {
       const response = await jobsAPI.getById(id);
       const job = response.data;
@@ -80,13 +59,19 @@ const JobForm = () => {
       alert('Failed to load job');
       navigate('/jobs');
     }
-  };
+  }, [id, navigate]);
 
-  const refreshJob = async () => {
+  useEffect(() => {
+    if (isEdit) {
+      loadJob();
+    }
+  }, [isEdit, loadJob]);
+
+  const refreshJob = useCallback(async () => {
     if (isEdit) {
       await loadJob();
     }
-  };
+  }, [isEdit, loadJob]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

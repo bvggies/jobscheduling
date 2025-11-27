@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { scheduleAPI, jobsAPI } from '../services/api';
+import { scheduleAPI } from '../services/api';
 import { format, parseISO } from 'date-fns';
 import { FiRefreshCw, FiCalendar, FiClock } from 'react-icons/fi';
 import './Schedule.css';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { alertsAPI } from '../services/api';
@@ -17,13 +17,7 @@ const Alerts = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, unread, read
 
-  useEffect(() => {
-    loadAlerts();
-    const interval = setInterval(loadAlerts, 30000); // Refresh every 30 seconds
-    return () => clearInterval(interval);
-  }, [filter]);
-
-  const loadAlerts = async () => {
+  const loadAlerts = useCallback(async () => {
     try {
       const readParam = filter === 'unread' ? false : filter === 'read' ? true : null;
       const response = await alertsAPI.getAll(readParam);
@@ -33,7 +27,13 @@ const Alerts = () => {
       console.error('Error loading alerts:', error);
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    loadAlerts();
+    const interval = setInterval(loadAlerts, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, [loadAlerts]);
 
   const handleMarkAsRead = async (id) => {
     try {

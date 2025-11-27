@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { analyticsAPI } from '../services/api';
 import { format } from 'date-fns';
-import { FiTrendingUp, FiClock, FiAlertTriangle, FiBarChart2 } from 'react-icons/fi';
+import { FiTrendingUp, FiAlertTriangle, FiBarChart2 } from 'react-icons/fi';
 import './Analytics.css';
 
 const Analytics = () => {
@@ -13,11 +13,7 @@ const Analytics = () => {
     end_date: '',
   });
 
-  useEffect(() => {
-    loadAnalytics();
-  }, [dateRange]);
-
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     try {
       setLoading(true);
       const response = await analyticsAPI.get(dateRange);
@@ -27,7 +23,11 @@ const Analytics = () => {
       console.error('Error loading analytics:', error);
       setLoading(false);
     }
-  };
+  }, [dateRange]);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [loadAnalytics]);
 
   if (loading) {
     return (

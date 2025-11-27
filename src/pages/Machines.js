@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { machinesAPI } from '../services/api';
-import { MACHINE_TYPES } from '../utils/constants';
 import { FiPlus, FiEdit, FiTrash2, FiSettings } from 'react-icons/fi';
 import './Machines.css';
 

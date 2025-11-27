@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { machinesAPI } from '../services/api';
 import { MACHINE_TYPES, SUBSTRATES } from '../utils/constants';
 import { FiSave, FiX } from 'react-icons/fi';
@@ -19,13 +18,7 @@ const MachineForm = () => {
 
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (isEdit) {
-      loadMachine();
-    }
-  }, [id]);
-
-  const loadMachine = async () => {
+  const loadMachine = useCallback(async () => {
     try {
       const response = await machinesAPI.getById(id);
       const machine = response.data;
@@ -39,7 +32,13 @@ const MachineForm = () => {
       alert('Failed to load machine');
       navigate('/machines');
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    if (isEdit) {
+      loadMachine();
+    }
+  }, [isEdit, loadMachine]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

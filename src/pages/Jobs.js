@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { jobsAPI } from '../services/api';
 import { STATUSES, PRIORITY_COLORS, STATUS_COLORS } from '../utils/constants';
-import { FiPlus, FiEdit, FiTrash2, FiFilter, FiSearch, FiDollarSign } from 'react-icons/fi';
+import { FiPlus, FiEdit, FiTrash2 } from 'react-icons/fi';
 import { format } from 'date-fns';
 import './Jobs.css';
 
 const Jobs = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [filters, setFilters] = useState({
     status: searchParams.get('status') || '',
     customer: '',
@@ -19,11 +19,7 @@ const Jobs = () => {
     end_date: '',
   });
 
-  useEffect(() => {
-    loadJobs();
-  }, [filters]);
-
-  const loadJobs = async () => {
+  const loadJobs = useCallback(async () => {
     try {
       setLoading(true);
       const response = await jobsAPI.getAll(filters);
@@ -33,7 +29,11 @@ const Jobs = () => {
       console.error('Error loading jobs:', error);
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    loadJobs();
+  }, [loadJobs]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this job?')) {
