@@ -113,36 +113,36 @@ const Analytics = () => {
           </div>
           <div className="analytics-card-body">
             <div className="metric-large" style={{ color: '#10b981' }}>
-              ${parseFloat(analytics.revenue?.collected_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ₵{parseFloat(analytics.revenue?.collected_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="metric-details">
               <div className="metric-detail">
                 <span className="metric-label">Total Revenue</span>
                 <span className="metric-value">
-                  ${parseFloat(analytics.revenue?.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ₵{parseFloat(analytics.revenue?.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
               <div className="metric-detail">
                 <span className="metric-label">Paid</span>
                 <span className="metric-value" style={{ color: '#10b981' }}>
-                  ${parseFloat(analytics.revenue?.paid_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ₵{parseFloat(analytics.revenue?.paid_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
               <div className="metric-detail">
                 <span className="metric-label">Pending</span>
                 <span className="metric-value text-warning">
-                  ${parseFloat(analytics.revenue?.pending_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ₵{parseFloat(analytics.revenue?.pending_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
             </div>
             <div className="revenue-breakdown">
               <div className="revenue-item">
                 <span>Deposits Collected:</span>
-                <strong>${parseFloat(analytics.revenue?.deposit_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                <strong>₵{parseFloat(analytics.revenue?.deposit_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
               <div className="revenue-item">
                 <span>Average Job Value:</span>
-                <strong>${parseFloat(analytics.revenue?.avg_job_value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                <strong>₵{parseFloat(analytics.revenue?.avg_job_value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
               </div>
             </div>
           </div>
@@ -348,9 +348,9 @@ const Analytics = () => {
                     <tr key={index}>
                       <td><strong>{customer.customer_name}</strong></td>
                       <td>{customer.job_count}</td>
-                      <td>${parseFloat(customer.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                      <td style={{ color: '#10b981' }}>${parseFloat(customer.paid_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                      <td className="text-warning">${parseFloat((customer.total_revenue || 0) - (customer.paid_revenue || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td>₵{parseFloat(customer.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td style={{ color: '#10b981' }}>₵{parseFloat(customer.paid_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="text-warning">₵{parseFloat((customer.total_revenue || 0) - (customer.paid_revenue || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -386,8 +386,8 @@ const Analytics = () => {
                     <tr key={index}>
                       <td><strong>{product.product_type}</strong></td>
                       <td>{product.job_count}</td>
-                      <td>${parseFloat(product.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                      <td>${parseFloat(product.avg_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td>₵{parseFloat(product.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td>₵{parseFloat(product.avg_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -417,7 +417,7 @@ const Analytics = () => {
                 <div key={index} className="trend-item">
                   <div className="trend-header">
                     <span className="trend-month">{new Date(month.month + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
-                    <span className="trend-value">${parseFloat(month.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span className="trend-value">₵{parseFloat(month.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                   <div className="trend-bar-container">
                     <div 
@@ -427,7 +427,7 @@ const Analytics = () => {
                   </div>
                   <div className="trend-details">
                     <span>{month.job_count} jobs</span>
-                    <span style={{ color: '#10b981' }}>${parseFloat(month.paid_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} paid</span>
+                    <span style={{ color: '#10b981' }}>₵{parseFloat(month.paid_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} paid</span>
                   </div>
                 </div>
               );

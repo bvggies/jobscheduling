@@ -64,11 +64,11 @@ const JobPayment = ({ job, onUpdate }) => {
           <div className="payment-info">
             <div className="payment-row">
               <span>Required:</span>
-              <strong>${(job.deposit_required || 0).toFixed(2)}</strong>
+              <strong>₵{parseFloat(job.deposit_required || 0).toFixed(2)}</strong>
             </div>
             <div className="payment-row">
               <span>Received:</span>
-              <strong>${(job.deposit_received || 0).toFixed(2)}</strong>
+              <strong>₵{parseFloat(job.deposit_received || 0).toFixed(2)}</strong>
             </div>
             {job.deposit_date && (
               <div className="payment-row">
@@ -98,17 +98,17 @@ const JobPayment = ({ job, onUpdate }) => {
           <div className="payment-info">
             <div className="payment-row">
               <span>Total Cost:</span>
-              <strong>${(job.total_cost || 0).toFixed(2)}</strong>
+              <strong>₵{parseFloat(job.total_cost || 0).toFixed(2)}</strong>
             </div>
             <div className="payment-row">
               <span>Balance Due:</span>
               <strong className={balanceDue > 0 ? 'text-danger' : ''}>
-                ${balanceDue.toFixed(2)}
+                ₵{balanceDue.toFixed(2)}
               </strong>
             </div>
             <div className="payment-row">
               <span>Received:</span>
-              <strong>${(job.final_payment_received || 0).toFixed(2)}</strong>
+              <strong>₵{parseFloat(job.final_payment_received || 0).toFixed(2)}</strong>
             </div>
             {job.final_payment_date && (
               <div className="payment-row">
@@ -220,7 +220,7 @@ const JobPayment = ({ job, onUpdate }) => {
                   className="form-control"
                   placeholder="Enter amount"
                 />
-                <small className="form-help-text">Balance due: ${balanceDue.toFixed(2)}</small>
+                <small className="form-help-text">Balance due: ₵{balanceDue.toFixed(2)}</small>
               </div>
               <div className="form-group">
                 <label>Date</label>

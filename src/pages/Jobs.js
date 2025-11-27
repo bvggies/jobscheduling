@@ -592,14 +592,14 @@ const Jobs = () => {
               </div>
               {paymentModal.type === 'deposit' && (
                 <div className="form-group">
-                  <label>Deposit Required: ${parseFloat(paymentModal.job.deposit_required || 0).toFixed(2)}</label>
-                  <label>Already Received: ${parseFloat(paymentModal.job.deposit_received || 0).toFixed(2)}</label>
+                  <label>Deposit Required: ₵{parseFloat(paymentModal.job.deposit_required || 0).toFixed(2)}</label>
+                  <label>Already Received: ₵{parseFloat(paymentModal.job.deposit_received || 0).toFixed(2)}</label>
                 </div>
               )}
               {paymentModal.type === 'final' && (
                 <div className="form-group">
-                  <label>Total Cost: ${parseFloat(paymentModal.job.total_cost || 0).toFixed(2)}</label>
-                  <label>Balance Due: ${(parseFloat(paymentModal.job.total_cost || 0) - parseFloat(paymentModal.job.deposit_received || 0) - parseFloat(paymentModal.job.final_payment_received || 0)).toFixed(2)}</label>
+                  <label>Total Cost: ₵{parseFloat(paymentModal.job.total_cost || 0).toFixed(2)}</label>
+                  <label>Balance Due: ₵{(parseFloat(paymentModal.job.total_cost || 0) - parseFloat(paymentModal.job.deposit_received || 0) - parseFloat(paymentModal.job.final_payment_received || 0)).toFixed(2)}</label>
                 </div>
               )}
               <div className="form-group">

@@ -337,8 +337,11 @@ router.patch('/:id/payment', async (req, res) => {
     let params;
 
     if (type === 'deposit') {
-      const depositReceived = (currentJob.deposit_received || 0) + parseFloat(amount);
-      const depositStatus = depositReceived >= (currentJob.deposit_required || 0) ? 'Received' : 'Pending';
+      const amountValue = parseFloat(amount) || 0;
+      const currentDeposit = parseFloat(currentJob.deposit_received || 0);
+      const depositRequired = parseFloat(currentJob.deposit_required || 0);
+      const depositReceived = currentDeposit + amountValue;
+      const depositStatus = depositReceived >= depositRequired ? 'Received' : 'Pending';
       
       updateQuery = `
         UPDATE jobs SET
@@ -351,8 +354,12 @@ router.patch('/:id/payment', async (req, res) => {
       `;
       params = [depositReceived, date, depositStatus, req.params.id];
     } else if (type === 'final') {
-      const finalReceived = (currentJob.final_payment_received || 0) + parseFloat(amount);
-      const balanceDue = (currentJob.total_cost || 0) - (currentJob.deposit_received || 0);
+      const amountValue = parseFloat(amount) || 0;
+      const currentFinal = parseFloat(currentJob.final_payment_received || 0);
+      const totalCost = parseFloat(currentJob.total_cost || 0);
+      const depositReceived = parseFloat(currentJob.deposit_received || 0);
+      const finalReceived = currentFinal + amountValue;
+      const balanceDue = totalCost - depositReceived;
       const paymentStatus = finalReceived >= balanceDue ? 'Paid' : 'Pending';
       
       updateQuery = `

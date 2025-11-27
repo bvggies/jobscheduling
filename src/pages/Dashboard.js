@@ -145,7 +145,7 @@ const Dashboard = () => {
               <div>
                 <h3>Total Revenue</h3>
                 <p className="revenue-amount">
-                  ${parseFloat(analytics.revenue.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ₵{parseFloat(analytics.revenue.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
             </div>
@@ -153,13 +153,13 @@ const Dashboard = () => {
               <div className="revenue-detail-item">
                 <span>Collected</span>
                 <strong style={{ color: '#10b981' }}>
-                  ${parseFloat(analytics.revenue.collected_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ₵{parseFloat(analytics.revenue.collected_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </strong>
               </div>
               <div className="revenue-detail-item">
                 <span>Pending</span>
                 <strong style={{ color: '#f59e0b' }}>
-                  ${parseFloat(analytics.revenue.pending_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ₵{parseFloat(analytics.revenue.pending_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </strong>
               </div>
             </div>
@@ -194,7 +194,7 @@ const Dashboard = () => {
               <div>
                 <h4>Avg Job Value</h4>
                 <p className="revenue-value">
-                  ${parseFloat(analytics.revenue.avg_job_value || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  ₵{parseFloat(analytics.revenue.avg_job_value || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </p>
                 <p className="revenue-label">Per Job</p>
               </div>
