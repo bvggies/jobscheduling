@@ -49,7 +49,12 @@ const Analytics = () => {
       : 0;
 
   return (
-    <div className="analytics-page" data-aos="fade-up">
+    <motion.div 
+      className="analytics-page"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="page-header">
         <div>
           <h1>Analytics & Reports</h1>
@@ -250,7 +255,7 @@ const Analytics = () => {
           </div>
         </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

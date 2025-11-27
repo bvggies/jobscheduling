@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { jobsAPI } from '../services/api';
 import {
   PRIORITIES,
@@ -124,7 +125,12 @@ const JobForm = () => {
   };
 
   return (
-    <div className="job-form-page" data-aos="fade-up">
+    <motion.div 
+      className="job-form-page"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="page-header">
         <div>
           <h1>{isEdit ? 'Edit Job' : 'New Job'}</h1>
@@ -333,7 +339,7 @@ const JobForm = () => {
           </button>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 };
 

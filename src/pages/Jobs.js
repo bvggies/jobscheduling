@@ -68,7 +68,12 @@ const Jobs = () => {
   }
 
   return (
-    <div className="jobs-page" data-aos="fade-up">
+    <motion.div 
+      className="jobs-page"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="page-header">
         <div>
           <h1>Jobs</h1>
@@ -238,7 +243,7 @@ const Jobs = () => {
           </tbody>
         </table>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

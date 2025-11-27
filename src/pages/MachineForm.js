@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { machinesAPI } from '../services/api';
 import { MACHINE_TYPES, SUBSTRATES } from '../utils/constants';
 import { FiSave, FiX } from 'react-icons/fi';
@@ -77,7 +78,12 @@ const MachineForm = () => {
   };
 
   return (
-    <div className="machine-form-page" data-aos="fade-up">
+    <motion.div 
+      className="machine-form-page"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="page-header">
         <div>
           <h1>{isEdit ? 'Edit Machine' : 'New Machine'}</h1>
@@ -147,7 +153,7 @@ const MachineForm = () => {
           </button>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 };
 

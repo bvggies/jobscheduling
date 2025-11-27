@@ -97,7 +97,12 @@ const Alerts = () => {
   const unreadCount = alerts.filter((a) => !a.read).length;
 
   return (
-    <div className="alerts-page" data-aos="fade-up">
+    <motion.div 
+      className="alerts-page"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="page-header">
         <div>
           <h1>Alerts & Notifications</h1>
@@ -192,7 +197,7 @@ const Alerts = () => {
           ))
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

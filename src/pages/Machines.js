@@ -45,7 +45,12 @@ const Machines = () => {
   }
 
   return (
-    <div className="machines-page" data-aos="fade-up">
+    <motion.div 
+      className="machines-page"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="page-header">
         <div>
           <h1>Machines</h1>
@@ -119,7 +124,7 @@ const Machines = () => {
           ))
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

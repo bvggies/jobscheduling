@@ -60,7 +60,12 @@ const Schedule = () => {
   }
 
   return (
-    <div className="schedule-page" data-aos="fade-up">
+    <motion.div 
+      className="schedule-page"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="page-header">
         <div>
           <h1>Schedule</h1>
@@ -194,7 +199,7 @@ const Schedule = () => {
           ))}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
