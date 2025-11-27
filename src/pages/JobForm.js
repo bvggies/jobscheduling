@@ -119,7 +119,8 @@ const JobForm = () => {
       navigate('/jobs');
     } catch (error) {
       console.error('Error saving job:', error);
-      alert('Failed to save job');
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to save job';
+      alert(`Failed to save job: ${errorMessage}`);
       setLoading(false);
     }
   };

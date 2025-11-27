@@ -84,6 +84,14 @@ router.post('/', async (req, res) => {
       deposit_required,
     } = req.body;
 
+    // Validate required fields
+    if (!job_name || !customer_name || !product_type || !quantity || !substrate || !due_date || !priority) {
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        details: 'Please fill in all required fields: Job Name, Customer Name, Product Type, Quantity, Substrate, Due Date, and Priority'
+      });
+    }
+
     const result = await db.query(
       `INSERT INTO jobs (
         job_name, po_number, customer_name, product_type, quantity,
@@ -92,16 +100,16 @@ router.post('/', async (req, res) => {
       RETURNING *`,
       [
         job_name,
-        po_number,
+        po_number || null,
         customer_name,
         product_type,
-        quantity,
+        parseInt(quantity),
         substrate,
         finishing || [],
         due_date,
         priority,
-        total_cost || 0,
-        deposit_required || 0,
+        parseFloat(total_cost) || 0,
+        parseFloat(deposit_required) || 0,
       ]
     );
 
@@ -109,19 +117,28 @@ router.post('/', async (req, res) => {
 
     // Create alert for rush jobs
     if (priority === 'Rush') {
-      await createAlert(
-        'rush_job',
-        `Rush job "${job_name}" has been added with due date ${due_date}`,
-        job.id,
-        null,
-        'warning'
-      );
+      try {
+        await createAlert(
+          'rush_job',
+          `Rush job "${job_name}" has been added with due date ${due_date}`,
+          job.id,
+          null,
+          'warning'
+        );
+      } catch (alertError) {
+        console.error('Error creating alert:', alertError);
+        // Don't fail the job creation if alert fails
+      }
     }
 
     res.status(201).json(job);
   } catch (error) {
     console.error('Error creating job:', error);
-    res.status(500).json({ error: 'Failed to create job' });
+    const errorMessage = error.message || 'Failed to create job';
+    res.status(500).json({ 
+      error: 'Failed to create job',
+      details: errorMessage
+    });
   }
 });
 
