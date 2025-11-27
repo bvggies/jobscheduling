@@ -520,7 +520,14 @@ const Analytics = () => {
                     </td>
                     <td>{job.customer_name}</td>
                     <td className="text-danger">
-                      {format(new Date(job.due_date), 'MMM dd, yyyy')}
+                      <div>
+                        {format(new Date(job.due_date), 'MMM dd, yyyy')}
+                        {job.due_time && (
+                          <div style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                            ⏰ {job.due_time}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td>
                       <span className="badge badge-warning">{job.status}</span>
