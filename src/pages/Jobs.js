@@ -237,13 +237,13 @@ const Jobs = () => {
     setPaymentModal({ show: true, job, type });
     if (type === 'deposit') {
       setPaymentData({ 
-        amount: (job.deposit_required || 0) - (job.deposit_received || 0),
+        amount: (parseFloat(job.deposit_required || 0) - parseFloat(job.deposit_received || 0)).toString(),
         date: new Date().toISOString().split('T')[0]
       });
     } else {
-      const balanceDue = (job.total_cost || 0) - (job.deposit_received || 0);
+      const balanceDue = parseFloat(job.total_cost || 0) - parseFloat(job.deposit_received || 0);
       setPaymentData({ 
-        amount: balanceDue - (job.final_payment_received || 0),
+        amount: (balanceDue - parseFloat(job.final_payment_received || 0)).toString(),
         date: new Date().toISOString().split('T')[0]
       });
     }
@@ -592,14 +592,14 @@ const Jobs = () => {
               </div>
               {paymentModal.type === 'deposit' && (
                 <div className="form-group">
-                  <label>Deposit Required: ${(paymentModal.job.deposit_required || 0).toFixed(2)}</label>
-                  <label>Already Received: ${(paymentModal.job.deposit_received || 0).toFixed(2)}</label>
+                  <label>Deposit Required: ${parseFloat(paymentModal.job.deposit_required || 0).toFixed(2)}</label>
+                  <label>Already Received: ${parseFloat(paymentModal.job.deposit_received || 0).toFixed(2)}</label>
                 </div>
               )}
               {paymentModal.type === 'final' && (
                 <div className="form-group">
-                  <label>Total Cost: ${(paymentModal.job.total_cost || 0).toFixed(2)}</label>
-                  <label>Balance Due: ${((paymentModal.job.total_cost || 0) - (paymentModal.job.deposit_received || 0) - (paymentModal.job.final_payment_received || 0)).toFixed(2)}</label>
+                  <label>Total Cost: ${parseFloat(paymentModal.job.total_cost || 0).toFixed(2)}</label>
+                  <label>Balance Due: ${(parseFloat(paymentModal.job.total_cost || 0) - parseFloat(paymentModal.job.deposit_received || 0) - parseFloat(paymentModal.job.final_payment_received || 0)).toFixed(2)}</label>
                 </div>
               )}
               <div className="form-group">
