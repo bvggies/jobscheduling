@@ -1,70 +1,211 @@
-# Getting Started with Create React App
+# JobScheduler - Print Job Management System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A comprehensive web application for managing print shop job scheduling, machine allocation, payment tracking, and analytics.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+### 1. Job Entry & Management
+- Create and manage print jobs with detailed information
+- Track job name, PO number, customer, product type, quantity, substrate, finishing options
+- Set due dates and priorities (Low, Medium, High, Rush)
+- Real-time status tracking (Not Started, Ready, In Progress, Completed)
 
-### `npm start`
+### 2. Machine/Resource Setup
+- Define and manage printing machines
+- Set machine types (Digital Press, Offset Press, Binder, Cutter, etc.)
+- Configure substrate compatibility for each machine
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 3. Smart Scheduling
+- Automatic job scheduling based on:
+  - Due dates (earlier = higher priority)
+  - Machine compatibility
+  - Minimal changeovers (groups jobs with same substrate/finishing)
+- Manual schedule adjustment capabilities
+- Visual schedule timeline
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 4. Payment Status Tracking
+- Track initial deposit (required amount, received amount, date, status)
+- Track final payment (balance due, received amount, date, status)
+- Visual indicators: 💰 (Deposit Pending), ✅ (Deposit Received), 🟢 (Fully Paid)
+- Jobs cannot be marked "Ready" unless deposit is received
 
-### `npm test`
+### 5. Real-Time Job Status Tracking
+- Live dashboard with color-coded status indicators
+- Status updates: Ready → In Progress → Completed
+- Visual indicators for on-time vs late jobs
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 6. Analytics & Reports
+- On-time completion rate
+- Machine utilization metrics
+- Status breakdown
+- Late jobs tracking
 
-### `npm run build`
+### 7. Alerts & Notifications
+- Jobs at risk of missing due date
+- Machine underutilization alerts
+- Rush job notifications
+- Late job alerts
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 8. Search & Filter
+- Filter by status, customer, machine, date range
+- Quick search functionality
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Tech Stack
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **Frontend**: React (Create React App)
+- **Backend**: Node.js, Express
+- **Database**: PostgreSQL (Neon)
+- **Animations**: AOS, Framer Motion
+- **Styling**: CSS3 with modern design
+- **Icons**: React Icons
 
-### `npm run eject`
+## Setup Instructions
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Prerequisites
+- Node.js (v14 or higher)
+- PostgreSQL database (Neon or local)
+- npm or yarn
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Installation
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd jobscheduling-app
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. Install frontend dependencies:
+```bash
+npm install
+```
 
-## Learn More
+3. Install backend dependencies:
+```bash
+cd server
+npm install
+cd ..
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+4. Set up environment variables:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Create `.env` in the root directory:
+```
+REACT_APP_API_URL=http://localhost:5000/api
+```
 
-### Code Splitting
+Create `server/.env`:
+```
+DATABASE_URL=your_neon_postgresql_connection_string
+PORT=5000
+NODE_ENV=development
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+5. Start the backend server:
+```bash
+cd server
+npm start
+```
 
-### Analyzing the Bundle Size
+6. Start the frontend (in a new terminal):
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+The app will be available at `http://localhost:3000`
 
-### Making a Progressive Web App
+## Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+This app is configured to deploy entirely on **Vercel** with **Neon PostgreSQL**.
 
-### Advanced Configuration
+### Quick Deploy
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+1. **Set up Neon Database**:
+   - Go to [Neon Console](https://console.neon.tech/)
+   - Create a new project
+   - Copy the connection string
 
-### Deployment
+2. **Deploy to Vercel**:
+   - Push code to GitHub
+   - Go to [Vercel Dashboard](https://vercel.com/dashboard)
+   - Import your GitHub repository
+   - Add environment variables:
+     - `DATABASE_URL`: Your Neon PostgreSQL connection string
+     - `NODE_ENV`: `production`
+   - Deploy
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+3. **After first deploy**, add:
+   - `REACT_APP_API_URL`: `https://your-app.vercel.app/api`
+   - Redeploy
 
-### `npm run build` fails to minify
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Project Structure
+
+```
+jobscheduling-app/
+├── public/
+│   ├── logo.svg
+│   ├── favicon.svg
+│   └── index.html
+├── src/
+│   ├── components/
+│   │   ├── Layout/
+│   │   │   ├── Navbar.js
+│   │   │   └── Sidebar.js
+│   │   └── JobPayment.js
+│   ├── pages/
+│   │   ├── Dashboard.js
+│   │   ├── Jobs.js
+│   │   ├── JobForm.js
+│   │   ├── Machines.js
+│   │   ├── MachineForm.js
+│   │   ├── Schedule.js
+│   │   ├── Analytics.js
+│   │   └── Alerts.js
+│   ├── services/
+│   │   └── api.js
+│   ├── utils/
+│   │   └── constants.js
+│   ├── App.js
+│   └── index.js
+├── server/
+│   ├── config/
+│   │   └── database.js
+│   ├── routes/
+│   │   ├── jobs.js
+│   │   ├── machines.js
+│   │   ├── schedule.js
+│   │   ├── analytics.js
+│   │   └── alerts.js
+│   ├── utils/
+│   │   ├── scheduler.js
+│   │   └── alerts.js
+│   └── index.js
+└── package.json
+```
+
+## Features in Detail
+
+### Smart Scheduling Algorithm
+- Groups jobs by substrate and finishing to minimize changeovers
+- Prioritizes by due date and priority level
+- Checks machine compatibility before assignment
+- Estimates job duration based on quantity and product type
+
+### Payment Validation
+- Jobs require deposit before being marked "Ready"
+- Automatic balance calculation
+- Payment status tracking with visual indicators
+
+### Real-Time Updates
+- Dashboard refreshes every 30 seconds
+- Schedule updates every minute
+- Alerts checked automatically
+
+## License
+
+MIT License
+
+## Support
+
+For issues and questions, please open an issue on GitHub.

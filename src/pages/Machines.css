@@ -1,0 +1,97 @@
+.machines-page {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.machines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.machine-card {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.machine-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.machine-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.machine-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 0.75rem;
+  background: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.machine-info h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.machine-type {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.machine-body {
+  flex: 1;
+  margin-bottom: 1.5rem;
+}
+
+.machine-compatibility {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.compatibility-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tag {
+  padding: 0.25rem 0.75rem;
+  background: var(--light-color);
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.machine-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .machines-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
