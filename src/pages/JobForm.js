@@ -34,7 +34,7 @@ const JobForm = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(isEdit);
+  const [loadingData, setLoadingData] = useState(false);
   const [currentJob, setCurrentJob] = useState(null);
 
   const loadJob = useCallback(async () => {
@@ -57,11 +57,13 @@ const JobForm = () => {
         deposit_required: job.deposit_required || '',
         status: job.status || 'Not Started',
       });
-      setLoadingData(false);
     } catch (error) {
       console.error('Error loading job:', error);
-      alert('Failed to load job');
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to load job';
+      alert(`Failed to load job: ${errorMessage}`);
       navigate('/jobs');
+    } finally {
+      setLoadingData(false);
     }
   }, [id, navigate]);
 
@@ -128,9 +130,15 @@ const JobForm = () => {
     }
   };
 
-  if (loadingData) {
+  if (loadingData && isEdit) {
     return (
       <div className="job-form-page">
+        <div className="page-header">
+          <div>
+            <h1>Edit Job</h1>
+            <p>Loading job details...</p>
+          </div>
+        </div>
         <div className="loading">
           <div className="spinner"></div>
         </div>

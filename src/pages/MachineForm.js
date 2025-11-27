@@ -18,7 +18,7 @@ const MachineForm = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(isEdit);
+  const [loadingData, setLoadingData] = useState(false);
 
   const loadMachine = useCallback(async () => {
     try {
@@ -30,11 +30,13 @@ const MachineForm = () => {
         type: machine.type || '',
         compatibility: machine.compatibility || [],
       });
-      setLoadingData(false);
     } catch (error) {
       console.error('Error loading machine:', error);
-      alert('Failed to load machine');
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to load machine';
+      alert(`Failed to load machine: ${errorMessage}`);
       navigate('/machines');
+    } finally {
+      setLoadingData(false);
     }
   }, [id, navigate]);
 
@@ -80,9 +82,15 @@ const MachineForm = () => {
     }
   };
 
-  if (loadingData) {
+  if (loadingData && isEdit) {
     return (
       <div className="machine-form-page">
+        <div className="page-header">
+          <div>
+            <h1>Edit Machine</h1>
+            <p>Loading machine details...</p>
+          </div>
+        </div>
         <div className="loading">
           <div className="spinner"></div>
         </div>
