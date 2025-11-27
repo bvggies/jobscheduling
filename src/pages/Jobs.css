@@ -196,6 +196,29 @@
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
+.machine-assign-select {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background: white;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+  width: 100%;
+}
+
+.machine-assign-select:hover {
+  border-color: var(--primary-color);
+}
+
+.machine-assign-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;

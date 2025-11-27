@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { jobsAPI } from '../services/api';
+import { jobsAPI, machinesAPI } from '../services/api';
 import { STATUSES, PRIORITY_COLORS, STATUS_COLORS } from '../utils/constants';
 import { FiPlus, FiEdit, FiTrash2, FiCheckCircle, FiPlay, FiClock, FiCopy, FiDownload } from 'react-icons/fi';
 import { format } from 'date-fns';
@@ -20,6 +20,7 @@ const Jobs = () => {
   });
   const [customers, setCustomers] = useState([]);
   const [customerSuggestions, setCustomerSuggestions] = useState([]);
+  const [machines, setMachines] = useState([]);
 
   const loadJobs = useCallback(async () => {
     try {
@@ -40,7 +41,17 @@ const Jobs = () => {
 
   useEffect(() => {
     loadJobs();
+    loadMachines();
   }, [loadJobs]);
+
+  const loadMachines = async () => {
+    try {
+      const response = await machinesAPI.getAll();
+      setMachines(response.data);
+    } catch (error) {
+      console.error('Error loading machines:', error);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this job?')) {
@@ -136,6 +147,36 @@ const Jobs = () => {
     setFilters({ ...filters, customer });
     setCustomerSuggestions([]);
   };
+
+  const handleMachineAssign = async (jobId, machineId, job) => {
+    try {
+      // If machineId is empty string, unassign the machine
+      const machineIdValue = machineId === '' ? null : parseInt(machineId);
+      
+      // Check compatibility if machine is selected
+      if (machineIdValue) {
+        const selectedMachine = machines.find(m => m.id === machineIdValue);
+        if (selectedMachine && selectedMachine.compatibility && selectedMachine.compatibility.length > 0) {
+          const isCompatible = selectedMachine.compatibility.includes(job.substrate);
+          if (!isCompatible) {
+            const confirmAssign = window.confirm(
+              `Warning: Machine "${selectedMachine.name}" may not be compatible with substrate "${job.substrate}".\n\nDo you want to assign it anyway?`
+            );
+            if (!confirmAssign) {
+              return;
+            }
+          }
+        }
+      }
+
+      await jobsAPI.update(jobId, { machine_id: machineIdValue });
+      loadJobs();
+    } catch (error) {
+      console.error('Error assigning machine:', error);
+      alert('Failed to assign machine');
+    }
+  };
+
 
   const getNextStatus = (currentStatus) => {
     const statusFlow = {
@@ -392,7 +433,33 @@ const Jobs = () => {
                       <span className="payment-text">{getPaymentStatus(job)}</span>
                     </div>
                   </td>
-                  <td>{job.machine_name || 'Not Assigned'}</td>
+                  <td>
+                    <select
+                      value={job.machine_id || ''}
+                      onChange={(e) => handleMachineAssign(job.id, e.target.value, job)}
+                      className="machine-assign-select"
+                      title="Assign machine"
+                    >
+                      <option value="">Not Assigned</option>
+                      {machines.map((machine) => {
+                        const isCompatible = !job.substrate || 
+                          !machine.compatibility || 
+                          machine.compatibility.length === 0 || 
+                          machine.compatibility.includes(job.substrate);
+                        
+                        return (
+                          <option 
+                            key={machine.id} 
+                            value={machine.id}
+                            style={!isCompatible ? { color: '#ef4444' } : {}}
+                          >
+                            {machine.name} ({machine.type})
+                            {!isCompatible ? ' ⚠️ Incompatible' : ''}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </td>
                   <td>
                     <div className="action-buttons">
                       <Link
