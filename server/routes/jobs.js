@@ -268,6 +268,54 @@ router.patch('/:id/status', async (req, res) => {
   }
 });
 
+// Duplicate job
+router.post('/:id/duplicate', async (req, res) => {
+  try {
+    // Get the original job
+    const originalJob = await db.query(
+      `SELECT * FROM jobs WHERE id = $1`,
+      [req.params.id]
+    );
+
+    if (originalJob.rows.length === 0) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    const job = originalJob.rows[0];
+
+    // Create a new job with the same data but reset status and payment info
+    const result = await db.query(
+      `INSERT INTO jobs (
+        job_name, po_number, customer_name, product_type, quantity,
+        substrate, finishing, due_date, priority, total_cost, deposit_required,
+        status, deposit_status, payment_status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      RETURNING *`,
+      [
+        `${job.job_name} (Copy)`,
+        job.po_number,
+        job.customer_name,
+        job.product_type,
+        job.quantity,
+        job.substrate,
+        job.finishing,
+        job.due_date,
+        job.priority,
+        job.total_cost,
+        job.deposit_required,
+        'Not Started',
+        'Pending',
+        'Pending',
+      ]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error duplicating job:', error);
+    res.status(500).json({ error: 'Failed to duplicate job' });
+  }
+});
+
 // Update payment
 router.patch('/:id/payment', async (req, res) => {
   try {

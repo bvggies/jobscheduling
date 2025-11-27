@@ -9,6 +9,9 @@ import {
   FiAlertTriangle,
   FiTrendingUp,
   FiCalendar,
+  FiDollarSign,
+  FiUsers,
+  FiPackage,
 } from 'react-icons/fi';
 import './Dashboard.css';
 
@@ -128,6 +131,77 @@ const Dashboard = () => {
           );
         })}
       </div>
+
+      {analytics && analytics.revenue && (
+        <div className="revenue-cards-grid">
+          <motion.div
+            className="card revenue-card-dashboard"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+          >
+            <div className="revenue-card-header">
+              <FiDollarSign className="revenue-icon" />
+              <div>
+                <h3>Total Revenue</h3>
+                <p className="revenue-amount">
+                  ${parseFloat(analytics.revenue.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+            </div>
+            <div className="revenue-card-details">
+              <div className="revenue-detail-item">
+                <span>Collected</span>
+                <strong style={{ color: '#10b981' }}>
+                  ${parseFloat(analytics.revenue.collected_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </strong>
+              </div>
+              <div className="revenue-detail-item">
+                <span>Pending</span>
+                <strong style={{ color: '#f59e0b' }}>
+                  ${parseFloat(analytics.revenue.pending_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </strong>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="card revenue-card-small"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
+            <div className="revenue-card-small-content">
+              <FiUsers className="revenue-icon-small" style={{ color: '#3b82f6' }} />
+              <div>
+                <h4>Top Customers</h4>
+                <p className="revenue-value">
+                  {analytics.revenueByCustomer?.length || 0}
+                </p>
+                <p className="revenue-label">Active</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="card revenue-card-small"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
+            <div className="revenue-card-small-content">
+              <FiPackage className="revenue-icon-small" style={{ color: '#8b5cf6' }} />
+              <div>
+                <h4>Avg Job Value</h4>
+                <p className="revenue-value">
+                  ${parseFloat(analytics.revenue.avg_job_value || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </p>
+                <p className="revenue-label">Per Job</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       <div className="dashboard-grid">
         <motion.div

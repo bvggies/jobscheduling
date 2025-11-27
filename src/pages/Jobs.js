@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { jobsAPI } from '../services/api';
 import { STATUSES, PRIORITY_COLORS, STATUS_COLORS } from '../utils/constants';
-import { FiPlus, FiEdit, FiTrash2, FiCheckCircle, FiPlay, FiClock } from 'react-icons/fi';
+import { FiPlus, FiEdit, FiTrash2, FiCheckCircle, FiPlay, FiClock, FiCopy, FiDownload } from 'react-icons/fi';
 import { format } from 'date-fns';
 import './Jobs.css';
 
@@ -18,12 +18,19 @@ const Jobs = () => {
     start_date: '',
     end_date: '',
   });
+  const [customers, setCustomers] = useState([]);
+  const [customerSuggestions, setCustomerSuggestions] = useState([]);
 
   const loadJobs = useCallback(async () => {
     try {
       setLoading(true);
       const response = await jobsAPI.getAll(filters);
       setJobs(response.data);
+      
+      // Extract unique customers for autocomplete
+      const uniqueCustomers = [...new Set(response.data.map(job => job.customer_name))].sort();
+      setCustomers(uniqueCustomers);
+      
       setLoading(false);
     } catch (error) {
       console.error('Error loading jobs:', error);
@@ -62,6 +69,72 @@ const Jobs = () => {
       const errorMessage = error.response?.data?.error || error.message || 'Failed to update status';
       alert(`Failed to update status: ${errorMessage}`);
     }
+  };
+
+  const handleDuplicate = async (jobId) => {
+    if (window.confirm('Duplicate this job? A new job will be created with the same details.')) {
+      try {
+        await jobsAPI.duplicate(jobId);
+        loadJobs();
+        alert('Job duplicated successfully!');
+      } catch (error) {
+        console.error('Error duplicating job:', error);
+        alert('Failed to duplicate job');
+      }
+    }
+  };
+
+  const handleExport = () => {
+    const headers = ['Job Name', 'PO Number', 'Customer', 'Product Type', 'Quantity', 'Substrate', 'Finishing', 'Due Date', 'Priority', 'Status', 'Total Cost', 'Payment Status', 'Machine'];
+    const csvData = jobs.map(job => [
+      job.job_name || '',
+      job.po_number || '',
+      job.customer_name || '',
+      job.product_type || '',
+      job.quantity || 0,
+      job.substrate || '',
+      (job.finishing || []).join(', '),
+      format(new Date(job.due_date), 'yyyy-MM-dd'),
+      job.priority || '',
+      job.status || '',
+      job.total_cost || 0,
+      job.payment_status === 'Paid' ? 'Paid' : (job.deposit_status === 'Received' ? 'Deposit Received' : 'Pending'),
+      job.machine_name || 'Not Assigned'
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `jobs_export_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleCustomerInputChange = (e) => {
+    const value = e.target.value;
+    setFilters({ ...filters, customer: value });
+    
+    if (value) {
+      const filtered = customers.filter(c => 
+        c.toLowerCase().includes(value.toLowerCase())
+      );
+      setCustomerSuggestions(filtered);
+    } else {
+      setCustomerSuggestions([]);
+    }
+  };
+
+  const selectCustomer = (customer) => {
+    setFilters({ ...filters, customer });
+    setCustomerSuggestions([]);
   };
 
   const getNextStatus = (currentStatus) => {
@@ -119,9 +192,14 @@ const Jobs = () => {
           <h1>Jobs</h1>
           <p>Manage all your print jobs</p>
         </div>
-        <Link to="/jobs/new" className="btn btn-primary">
-          <FiPlus /> New Job
-        </Link>
+        <div className="page-header-actions">
+          <button onClick={handleExport} className="btn btn-outline" title="Export to CSV">
+            <FiDownload /> Export
+          </button>
+          <Link to="/jobs/new" className="btn btn-primary">
+            <FiPlus /> New Job
+          </Link>
+        </div>
       </div>
 
       <div className="card">
@@ -141,15 +219,38 @@ const Jobs = () => {
               ))}
             </select>
           </div>
-          <div className="filter-group">
+          <div className="filter-group filter-group-autocomplete">
             <label>Customer</label>
-            <input
-              type="text"
-              placeholder="Search customer..."
-              value={filters.customer}
-              onChange={(e) => setFilters({ ...filters, customer: e.target.value })}
-              className="form-control"
-            />
+            <div className="autocomplete-wrapper">
+              <input
+                type="text"
+                placeholder="Search customer..."
+                value={filters.customer}
+                onChange={handleCustomerInputChange}
+                onFocus={() => {
+                  if (filters.customer) {
+                    const filtered = customers.filter(c => 
+                      c.toLowerCase().includes(filters.customer.toLowerCase())
+                    );
+                    setCustomerSuggestions(filtered);
+                  }
+                }}
+                className="form-control"
+              />
+              {customerSuggestions.length > 0 && (
+                <div className="autocomplete-dropdown">
+                  {customerSuggestions.map((customer, index) => (
+                    <div
+                      key={index}
+                      className="autocomplete-item"
+                      onClick={() => selectCustomer(customer)}
+                    >
+                      {customer}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className="filter-group">
             <label>Start Date</label>
@@ -302,14 +403,22 @@ const Jobs = () => {
                         <FiEdit />
                       </Link>
                       <button
+                        onClick={() => handleDuplicate(job.id)}
+                        className="btn-icon"
+                        title="Duplicate"
+                        style={{ color: '#3b82f6' }}
+                      >
+                        <FiCopy />
+                      </button>
+                      <button
                         onClick={() => handleDelete(job.id)}
                         className="btn-icon btn-danger"
                         title="Delete"
                       >
                         <FiTrash2 />
-                    </button>
-                  </div>
-                </td>
+                      </button>
+                    </div>
+                  </td>
               </tr>
               ))
             )}

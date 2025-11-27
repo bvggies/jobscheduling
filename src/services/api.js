@@ -16,6 +16,7 @@ export const jobsAPI = {
   create: (data) => api.post('/jobs', data),
   update: (id, data) => api.put(`/jobs/${id}`, data),
   delete: (id) => api.delete(`/jobs/${id}`),
+  duplicate: (id) => api.post(`/jobs/${id}/duplicate`),
   updateStatus: (id, status) => api.patch(`/jobs/${id}/status`, { status }),
   updatePayment: (id, type, amount, date) =>
     api.patch(`/jobs/${id}/payment`, { type, amount, date }),
