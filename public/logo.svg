@@ -1,9 +1,20 @@
 <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="200" height="200" rx="20" fill="#2563eb"/>
-  <path d="M50 60L100 40L150 60V140L100 160L50 140V60Z" stroke="white" stroke-width="8" fill="none"/>
-  <path d="M70 80L100 70L130 80V120L100 130L70 120V80Z" stroke="white" stroke-width="6" fill="none"/>
-  <circle cx="100" cy="100" r="15" fill="white"/>
-  <path d="M50 60L100 40L150 60" stroke="white" stroke-width="4" stroke-linecap="round"/>
-  <path d="M50 140L100 160L150 140" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="24" fill="url(#grad1)"/>
+  <!-- Calendar/Job Icon -->
+  <rect x="40" y="50" width="120" height="100" rx="8" fill="white" opacity="0.2"/>
+  <rect x="50" y="60" width="100" height="80" rx="6" fill="white"/>
+  <!-- Lines representing job schedule -->
+  <line x1="60" y1="80" x2="140" y2="80" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+  <line x1="60" y1="100" x2="120" y2="100" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+  <line x1="60" y1="120" x2="130" y2="120" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+  <!-- Clock/Time indicator -->
+  <circle cx="150" cy="50" r="12" fill="white"/>
+  <line x1="150" y1="50" x2="150" y2="44" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>
+  <line x1="150" y1="50" x2="155" y2="50" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>
 </svg>
-

@@ -14,7 +14,7 @@ const Navbar = () => {
     >
       <div className="navbar-container">
         <Link to="/dashboard" className="navbar-brand">
-          <img src="/logo.png" alt="JobScheduler" className="navbar-logo" />
+          <img src="/logo.svg" alt="JobScheduler" className="navbar-logo" />
           <span className="navbar-title">JobScheduler</span>
         </Link>
         <div className="navbar-actions">

@@ -38,7 +38,26 @@ const Analytics = () => {
   }
 
   if (!analytics) {
-    return null;
+    return (
+      <motion.div 
+        className="analytics-page"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="page-header">
+          <h1>Analytics & Reports</h1>
+          <p>Performance metrics and insights</p>
+        </div>
+        <div className="card">
+          <div className="empty-state">
+            <FiBarChart2 className="empty-state-icon" />
+            <p>No analytics data available</p>
+            <p className="text-secondary">Create some jobs to see analytics</p>
+          </div>
+        </div>
+      </motion.div>
+    );
   }
 
   const onTimeRate =
@@ -135,24 +154,30 @@ const Analytics = () => {
           </div>
           <div className="analytics-card-body">
             <div className="status-breakdown">
-              {analytics.statusBreakdown?.map((status) => (
-                <div key={status.status} className="status-item">
-                  <div className="status-info">
-                    <span className="status-name">{status.status}</span>
-                    <span className="status-count">{status.count}</span>
+              {analytics.statusBreakdown && analytics.statusBreakdown.length > 0 ? (
+                analytics.statusBreakdown.map((status) => (
+                  <div key={status.status} className="status-item">
+                    <div className="status-info">
+                      <span className="status-name">{status.status}</span>
+                      <span className="status-count">{status.count}</span>
+                    </div>
+                    <div className="status-bar">
+                      <div
+                        className="status-bar-fill"
+                        style={{
+                          width: `${
+                            analytics.completionRate?.total > 0
+                              ? (status.count / analytics.completionRate.total) * 100
+                              : 0
+                          }%`,
+                        }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="status-bar">
-                    <div
-                      className="status-bar-fill"
-                      style={{
-                        width: `${
-                          (status.count / analytics.completionRate?.total) * 100 || 0
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-secondary">No status data available</p>
+              )}
             </div>
           </div>
         </motion.div>
@@ -179,14 +204,14 @@ const Analytics = () => {
               </tr>
             </thead>
             <tbody>
-              {analytics.utilization?.length === 0 ? (
+              {!analytics.utilization || analytics.utilization.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="text-center">
                     No machine data available
                   </td>
                 </tr>
               ) : (
-                analytics.utilization?.map((machine) => (
+                analytics.utilization.map((machine) => (
                   <tr key={machine.id}>
                     <td>
                       <strong>{machine.name}</strong>
