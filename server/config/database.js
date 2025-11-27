@@ -108,6 +108,23 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Add due_time column if it doesn't exist (for existing databases)
+    try {
+      await pool.query(`
+        DO $$ 
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'jobs' AND column_name = 'due_time'
+          ) THEN
+            ALTER TABLE jobs ADD COLUMN due_time TIME;
+          END IF;
+        END $$;
+      `);
+    } catch (error) {
+      console.log('Note: due_time column may already exist or could not be added:', error.message);
+    }
+
     // Create indexes for better performance
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_jobs_due_date ON jobs(due_date);

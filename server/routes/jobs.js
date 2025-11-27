@@ -137,9 +137,10 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error('Error creating job:', error);
     const errorMessage = error.message || 'Failed to create job';
+    const errorDetails = error.detail || errorMessage;
     res.status(500).json({ 
       error: 'Failed to create job',
-      details: errorMessage
+      details: errorDetails
     });
   }
 });
