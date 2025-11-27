@@ -18,9 +18,11 @@ const MachineForm = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(isEdit);
 
   const loadMachine = useCallback(async () => {
     try {
+      setLoadingData(true);
       const response = await machinesAPI.getById(id);
       const machine = response.data;
       setFormData({
@@ -28,6 +30,7 @@ const MachineForm = () => {
         type: machine.type || '',
         compatibility: machine.compatibility || [],
       });
+      setLoadingData(false);
     } catch (error) {
       console.error('Error loading machine:', error);
       alert('Failed to load machine');
@@ -77,12 +80,22 @@ const MachineForm = () => {
     }
   };
 
+  if (loadingData) {
+    return (
+      <div className="machine-form-page">
+        <div className="loading">
+          <div className="spinner"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <motion.div 
       className="machine-form-page"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
     >
       <div className="page-header">
         <div>

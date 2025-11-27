@@ -70,9 +70,9 @@ const Jobs = () => {
   return (
     <motion.div 
       className="jobs-page"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
     >
       <div className="page-header">
         <div>
@@ -162,12 +162,7 @@ const Jobs = () => {
               </tr>
             ) : (
               jobs.map((job) => (
-                <motion.tr
-                  key={job.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
+                <tr key={job.id}>
                   <td>
                     <strong>{job.job_name}</strong>
                     {job.po_number && (
@@ -234,10 +229,10 @@ const Jobs = () => {
                         title="Delete"
                       >
                         <FiTrash2 />
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
+                    </button>
+                  </div>
+                </td>
+              </tr>
               ))
             )}
           </tbody>
