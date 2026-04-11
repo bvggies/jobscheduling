@@ -14,15 +14,17 @@ export const PRODUCT_TYPES = [
 ];
 
 export const MACHINE_TYPES = [
+  'Large Format Printer',
+  'DTF Printer',
+  'Cutting Plotter',
+  'UV Printer',
+  'Heat press',
+  'Mug Press',
+  'Canon Printer',
+  'Photocopier',
   'Digital Press',
   'Offset Press',
   'Binder',
-  'Cutter',
-  'Large Format',
-  'DTF Printing',
-  'Embroidery',
-  'Laminator',
-  'Folding Machine',
   'Other',
 ];
 
@@ -42,10 +44,13 @@ export const SUBSTRATES = [
 ];
 
 export const FINISHING_OPTIONS = [
-  'Folding',
+  'Branding',
   'Binding',
   'Lamination',
-  'UV Coating',
+  'Embroidery',
+  'UV Branding',
+  'Customization',
+  'Folding',
   'Die Cutting',
   'Embossing',
   'Foil Stamping',

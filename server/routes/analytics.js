@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
-// Get analytics
+router.use(requireAuth, requireAdmin);
+
 router.get('/', async (req, res) => {
   try {
     const { start_date, end_date } = req.query;

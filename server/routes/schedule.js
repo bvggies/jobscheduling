@@ -2,8 +2,11 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { scheduleJobs } = require('../utils/scheduler');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { logJobFieldChanges } = require('../utils/jobUpdates');
 
-// Get schedule
+router.use(requireAuth, requireAdmin);
+
 router.get('/', async (req, res) => {
   try {
     const { start_date, end_date } = req.query;
@@ -49,6 +52,12 @@ router.post('/auto-schedule', async (req, res) => {
 router.put('/:jobId', async (req, res) => {
   try {
     const { machine_id, scheduled_start, scheduled_end } = req.body;
+    const before = await db.query(`SELECT * FROM jobs WHERE id = $1`, [req.params.jobId]);
+    if (before.rows.length === 0) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+    const existing = before.rows[0];
+
     const result = await db.query(
       `UPDATE jobs SET
         machine_id = $1,
@@ -64,7 +73,20 @@ router.put('/:jobId', async (req, res) => {
       return res.status(404).json({ error: 'Job not found' });
     }
 
-    res.json(result.rows[0]);
+    const updated = result.rows[0];
+    try {
+      await logJobFieldChanges({
+        oldRow: existing,
+        newRow: updated,
+        actorId: req.user.id,
+        actorRole: req.user.role,
+        actorName: req.user.name || req.user.email,
+      });
+    } catch (logErr) {
+      console.error('Schedule log error:', logErr);
+    }
+
+    res.json(updated);
   } catch (error) {
     console.error('Error updating schedule:', error);
     res.status(500).json({ error: 'Failed to update schedule' });

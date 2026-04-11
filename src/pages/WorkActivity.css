@@ -1,0 +1,49 @@
+.work-activity-table-wrap {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  overflow: auto;
+  box-shadow: var(--shadow);
+}
+
+.work-activity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.work-activity-table th,
+.work-activity-table td {
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+}
+
+.work-activity-table th {
+  background: var(--light-color);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.work-activity-table a {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.work-activity-note {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+}
+
+.work-activity-badge {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: #e0e7ff;
+  color: #3730a3;
+}

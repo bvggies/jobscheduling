@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
+const bcrypt = require('bcryptjs');
 
 dotenv.config();
 
@@ -12,7 +13,7 @@ const pool = new Pool({
   // Optimize for serverless
   max: 1, // Limit connections for serverless
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 15000,
 });
 
 pool.on('connect', () => {
@@ -63,6 +64,19 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Create users table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'customer')),
+        name VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Create jobs table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS jobs (
@@ -79,6 +93,7 @@ const initializeDatabase = async () => {
         priority VARCHAR(20) NOT NULL CHECK (priority IN ('Low', 'Medium', 'High', 'Rush')),
         status VARCHAR(20) DEFAULT 'Not Started' CHECK (status IN ('Not Started', 'Ready', 'In Progress', 'Completed')),
         machine_id INTEGER REFERENCES machines(id) ON DELETE SET NULL,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
         scheduled_start TIMESTAMP,
         scheduled_end TIMESTAMP,
         total_cost DECIMAL(10, 2),
@@ -91,6 +106,47 @@ const initializeDatabase = async () => {
         payment_status VARCHAR(20) DEFAULT 'Pending' CHECK (payment_status IN ('Pending', 'Paid')),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'jobs' AND column_name = 'user_id'
+        ) THEN
+          ALTER TABLE jobs ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+      END $$;
+    `);
+
+    // Create feedback table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS feedback (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        subject VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        admin_reply TEXT,
+        status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'answered', 'closed')),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Job activity (customers + admins track progress)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS job_updates (
+        id SERIAL PRIMARY KEY,
+        job_id INTEGER NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+        actor_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        actor_role VARCHAR(20) NOT NULL,
+        actor_name VARCHAR(255),
+        kind VARCHAR(40) NOT NULL,
+        summary TEXT NOT NULL,
+        body TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
@@ -131,8 +187,57 @@ const initializeDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
       CREATE INDEX IF NOT EXISTS idx_jobs_machine_id ON jobs(machine_id);
       CREATE INDEX IF NOT EXISTS idx_jobs_customer_name ON jobs(customer_name);
+      CREATE INDEX IF NOT EXISTS idx_jobs_user_id ON jobs(user_id);
       CREATE INDEX IF NOT EXISTS idx_alerts_read ON alerts(read);
+      CREATE INDEX IF NOT EXISTS idx_feedback_user_id ON feedback(user_id);
+      CREATE INDEX IF NOT EXISTS idx_job_updates_job_id ON job_updates(job_id);
+      CREATE INDEX IF NOT EXISTS idx_job_updates_created ON job_updates(created_at DESC);
     `);
+
+    const entries = [];
+    const rawSeeds = process.env.SEED_ADMINS?.trim();
+    if (rawSeeds) {
+      try {
+        const parsed = JSON.parse(rawSeeds);
+        if (Array.isArray(parsed)) {
+          for (const row of parsed) {
+            if (row && row.email && row.password && row.name) {
+              entries.push({
+                email: String(row.email).trim().toLowerCase(),
+                password: String(row.password),
+                name: String(row.name).trim(),
+              });
+            }
+          }
+        }
+      } catch (e) {
+        console.error('SEED_ADMINS must be valid JSON array of {email,password,name}:', e.message);
+      }
+    }
+    const legacyEmail = process.env.ADMIN_EMAIL?.trim();
+    const legacyPassword = process.env.ADMIN_PASSWORD;
+    if (legacyEmail && legacyPassword && !entries.some((e) => e.email === legacyEmail.toLowerCase())) {
+      entries.push({
+        email: legacyEmail.toLowerCase(),
+        password: legacyPassword,
+        name: process.env.ADMIN_NAME?.trim() || 'Administrator',
+      });
+    }
+    for (const { email, password, name } of entries) {
+      if (password.length < 8) {
+        console.warn(`Skipped seed admin ${email}: password must be at least 8 characters`);
+        continue;
+      }
+      const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+      if (existing.rows.length === 0) {
+        const hash = await bcrypt.hash(password, 10);
+        await pool.query(
+          `INSERT INTO users (email, password_hash, role, name) VALUES ($1, $2, 'admin', $3)`,
+          [email, hash, name]
+        );
+        console.log(`Seeded admin user: ${email}`);
+      }
+    }
 
     console.log('Database tables initialized successfully');
   } catch (error) {
@@ -144,5 +249,6 @@ module.exports = {
   query,
   pool,
   connect,
+  initializeDatabase,
 };
 

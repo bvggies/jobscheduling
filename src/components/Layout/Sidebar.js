@@ -9,6 +9,8 @@ import {
   FiBarChart2,
   FiAlertCircle,
   FiPlus,
+  FiMessageSquare,
+  FiActivity,
 } from 'react-icons/fi';
 import './Sidebar.css';
 
@@ -22,6 +24,8 @@ const Sidebar = () => {
     { path: '/schedule', icon: FiCalendar, label: 'Schedule' },
     { path: '/analytics', icon: FiBarChart2, label: 'Analytics' },
     { path: '/alerts', icon: FiAlertCircle, label: 'Alerts' },
+    { path: '/feedback', icon: FiMessageSquare, label: 'Feedback' },
+    { path: '/activity', icon: FiActivity, label: 'Work activity' },
   ];
 
   return (
@@ -34,7 +38,9 @@ const Sidebar = () => {
       <nav className="sidebar-nav">
         {menuItems.map((item, index) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+          const isActive =
+            location.pathname === item.path ||
+            (item.path !== '/dashboard' && location.pathname.startsWith(`${item.path}/`));
           return (
             <motion.div
               key={item.path}

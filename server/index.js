@@ -6,6 +6,10 @@ const machinesRoutes = require('./routes/machines');
 const scheduleRoutes = require('./routes/schedule');
 const analyticsRoutes = require('./routes/analytics');
 const alertsRoutes = require('./routes/alerts');
+const authRoutes = require('./routes/auth');
+const feedbackRoutes = require('./routes/feedback');
+const usersRoutes = require('./routes/users');
+const activityRoutes = require('./routes/activity');
 const db = require('./config/database');
 
 dotenv.config();
@@ -38,6 +42,10 @@ app.use(async (req, res, next) => {
 });
 
 // Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/feedback', feedbackRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/activity', activityRoutes);
 app.use('/api/jobs', jobsRoutes);
 app.use('/api/machines', machinesRoutes);
 app.use('/api/schedule', scheduleRoutes);

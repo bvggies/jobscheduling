@@ -1,0 +1,227 @@
+.customer-page-header {
+  margin-bottom: 1.75rem;
+}
+
+.customer-page-header h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.customer-page-header p {
+  color: var(--text-secondary);
+}
+
+.customer-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.customer-tile {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.customer-tile:hover {
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-lg);
+}
+
+.customer-tile-icon {
+  font-size: 1.75rem;
+  color: var(--primary-color);
+}
+
+.customer-tile h2 {
+  font-size: 1.05rem;
+  margin-bottom: 0.2rem;
+}
+
+.customer-tile p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.customer-info-panel {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.customer-info-panel h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.customer-steps {
+  margin-left: 1.25rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.customer-table-wrap {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.customer-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.customer-table th,
+.customer-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.customer-table th {
+  background: var(--light-color);
+  font-weight: 600;
+}
+
+.customer-table tr:last-child td {
+  border-bottom: none;
+}
+
+.customer-table a {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.customer-feedback-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.customer-feedback-card {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.customer-feedback-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.35rem;
+}
+
+.customer-feedback-meta {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.customer-feedback-body {
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.customer-reply {
+  background: #eff6ff;
+  border-left: 3px solid var(--primary-color);
+  padding: 0.75rem 1rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+  margin-top: 0.5rem;
+}
+
+.customer-reply strong {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--primary-color);
+  margin-bottom: 0.35rem;
+}
+
+.customer-form-panel {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.customer-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.customer-detail-item label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.customer-detail-item span {
+  font-weight: 500;
+}
+
+.customer-activity-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.customer-activity-feed li {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.customer-activity-feed li:last-child {
+  border-bottom: none;
+}
+
+.customer-activity-feed a {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.65rem 0;
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 640px) {
+  .customer-activity-feed a {
+    grid-template-columns: 1fr;
+  }
+}
+
+.customer-activity-job {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.customer-activity-text {
+  color: var(--text-primary);
+}
+
+.customer-activity-time {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}

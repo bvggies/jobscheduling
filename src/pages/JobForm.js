@@ -1,22 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { jobsAPI } from '../services/api';
+import { jobsAPI, usersAPI } from '../services/api';
+import JobActivityPanel from '../components/JobActivityPanel';
+import { useAuth } from '../context/AuthContext';
 import {
   PRIORITIES,
   PRODUCT_TYPES,
   SUBSTRATES,
   FINISHING_OPTIONS,
 } from '../utils/constants';
-import { FiSave, FiX, FiDollarSign } from 'react-icons/fi';
+import { FiSave, FiX, FiDollarSign, FiUserPlus } from 'react-icons/fi';
 import JobPayment from '../components/JobPayment';
 import { STATUSES } from '../utils/constants';
 import './JobForm.css';
 
-const JobForm = () => {
+const JobForm = ({ portalMode = false }) => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
+  const { user, isAdmin } = useAuth();
+  const jobsListPath = portalMode ? '/portal/jobs' : '/jobs';
 
   const [formData, setFormData] = useState({
     job_name: '',
@@ -32,8 +36,13 @@ const JobForm = () => {
     total_cost: '',
     deposit_required: '',
     status: 'Not Started',
+    assigned_user_id: '',
   });
 
+  const [customers, setCustomers] = useState([]);
+  const [newCustomer, setNewCustomer] = useState({ name: '', email: '', password: '' });
+  const [creatingCustomer, setCreatingCustomer] = useState(false);
+  const [createCustomerError, setCreateCustomerError] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [currentJob, setCurrentJob] = useState(null);
@@ -58,22 +67,45 @@ const JobForm = () => {
         total_cost: job.total_cost || '',
         deposit_required: job.deposit_required || '',
         status: job.status || 'Not Started',
+        assigned_user_id: job.user_id != null ? String(job.user_id) : '',
       });
     } catch (error) {
       console.error('Error loading job:', error);
       const errorMessage = error.response?.data?.error || error.message || 'Failed to load job';
       alert(`Failed to load job: ${errorMessage}`);
-      navigate('/jobs');
+      navigate(jobsListPath);
     } finally {
       setLoadingData(false);
     }
-  }, [id, navigate]);
+  }, [id, navigate, jobsListPath]);
 
   useEffect(() => {
     if (isEdit) {
       loadJob();
     }
   }, [isEdit, loadJob]);
+
+  useEffect(() => {
+    if (!isEdit && portalMode && user?.name) {
+      setFormData((prev) => ({ ...prev, customer_name: user.name }));
+    }
+  }, [isEdit, portalMode, user?.name]);
+
+  useEffect(() => {
+    if (portalMode || !isAdmin) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await usersAPI.getCustomers();
+        if (!cancelled) setCustomers(data || []);
+      } catch {
+        if (!cancelled) setCustomers([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [portalMode, isAdmin]);
 
   const refreshJob = useCallback(async () => {
     if (isEdit) {
@@ -83,7 +115,32 @@ const JobForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (portalMode && name === 'customer_name') return;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleNewCustomerField = (e) => {
+    const { name, value } = e.target;
+    setNewCustomer((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCreateCustomer = async () => {
+    setCreateCustomerError('');
+    setCreatingCustomer(true);
+    try {
+      const { data } = await usersAPI.createCustomer(newCustomer);
+      setCustomers((prev) => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+      setFormData((fd) => ({
+        ...fd,
+        assigned_user_id: String(data.id),
+        customer_name: fd.customer_name?.trim() ? fd.customer_name : data.name,
+      }));
+      setNewCustomer({ name: '', email: '', password: '' });
+    } catch (err) {
+      setCreateCustomerError(err.response?.data?.error || 'Could not create customer');
+    } finally {
+      setCreatingCustomer(false);
+    }
   };
 
   const handleFinishingChange = (finish) => {
@@ -110,12 +167,16 @@ const JobForm = () => {
     setLoading(true);
 
     try {
+      const { assigned_user_id, ...rest } = formData;
       const data = {
-        ...formData,
-        quantity: parseInt(formData.quantity),
+        ...rest,
+        quantity: parseInt(formData.quantity, 10),
         total_cost: parseFloat(formData.total_cost) || 0,
         deposit_required: parseFloat(formData.deposit_required) || 0,
       };
+      if (!portalMode && isAdmin) {
+        data.user_id = assigned_user_id === '' ? null : parseInt(assigned_user_id, 10);
+      }
 
       if (isEdit) {
         await jobsAPI.update(id, data);
@@ -123,7 +184,7 @@ const JobForm = () => {
         await jobsAPI.create(data);
       }
 
-      navigate('/jobs');
+      navigate(jobsListPath);
     } catch (error) {
       console.error('Error saving job:', error);
       const errorMessage = error.response?.data?.error || error.message || 'Failed to save job';
@@ -160,7 +221,7 @@ const JobForm = () => {
           <h1>{isEdit ? 'Edit Job' : 'New Job'}</h1>
           <p>{isEdit ? 'Update job details' : 'Create a new print job'}</p>
         </div>
-        <button onClick={() => navigate('/jobs')} className="btn btn-outline">
+        <button onClick={() => navigate(jobsListPath)} className="btn btn-outline">
           <FiX /> Cancel
         </button>
       </div>
@@ -199,7 +260,10 @@ const JobForm = () => {
                 onChange={handleChange}
                 className="form-control"
                 required
+                disabled={portalMode}
+                title={portalMode ? 'Uses your account name' : undefined}
               />
+              {portalMode ? <small className="form-hint">Uses your account name</small> : null}
             </div>
             <div className="form-group">
               <label className="form-label">Product Type *</label>
@@ -286,6 +350,93 @@ const JobForm = () => {
                 ))}
               </select>
             </div>
+            {!portalMode && isAdmin ? (
+              <div className="form-group grid-span-2 portal-customer-section">
+                <label className="form-label">Portal customer (optional)</label>
+                <p className="form-hint" style={{ marginBottom: '0.75rem' }}>
+                  Choose an existing portal account or create one so they can sign in, see this job, and receive
+                  updates.
+                </p>
+                <select
+                  name="assigned_user_id"
+                  value={formData.assigned_user_id}
+                  onChange={handleChange}
+                  className="form-control"
+                >
+                  <option value="">Not linked — customer portal only if linked below</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={String(c.id)}>
+                      {c.name} ({c.email})
+                    </option>
+                  ))}
+                </select>
+                <div className="create-customer-inline">
+                  <h3 className="create-customer-title">
+                    <FiUserPlus /> Or add a new portal customer
+                  </h3>
+                  {createCustomerError ? (
+                    <div className="job-form-inline-error">{createCustomerError}</div>
+                  ) : null}
+                  <div className="grid grid-2">
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="nc-name">
+                        Full name
+                      </label>
+                      <input
+                        id="nc-name"
+                        name="name"
+                        className="form-control"
+                        value={newCustomer.name}
+                        onChange={handleNewCustomerField}
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="nc-email">
+                        Email (login)
+                      </label>
+                      <input
+                        id="nc-email"
+                        name="email"
+                        type="email"
+                        className="form-control"
+                        value={newCustomer.email}
+                        onChange={handleNewCustomerField}
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="nc-password">
+                        Password (min 8)
+                      </label>
+                      <input
+                        id="nc-password"
+                        name="password"
+                        type="password"
+                        className="form-control"
+                        value={newCustomer.password}
+                        onChange={handleNewCustomerField}
+                        autoComplete="new-password"
+                        minLength={8}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    disabled={
+                      creatingCustomer ||
+                      !newCustomer.name.trim() ||
+                      !newCustomer.email.trim() ||
+                      newCustomer.password.length < 8
+                    }
+                    onClick={handleCreateCustomer}
+                  >
+                    {creatingCustomer ? 'Creating…' : 'Create customer & link to this job'}
+                  </button>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -366,6 +517,9 @@ const JobForm = () => {
             {currentJob && (
               <JobPayment job={currentJob} onUpdate={refreshJob} />
             )}
+            {currentJob && !portalMode ? (
+              <JobActivityPanel jobId={currentJob.id} canComment pollMs={0} />
+            ) : null}
           </>
         )}
 

@@ -104,6 +104,19 @@
   justify-content: center;
 }
 
+.navbar-user-name {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar-logout {
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
   .navbar-container {
     padding: 0 1rem;

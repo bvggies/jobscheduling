@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const { logJobFieldChanges } = require('./jobUpdates');
 
 // Estimate job duration in hours (simplified - can be enhanced)
 const estimateJobDuration = (quantity, productType) => {
@@ -132,15 +133,33 @@ const scheduleJobs = async () => {
 
           const endTime = new Date(startTime.getTime() + duration * 60 * 60 * 1000);
 
-          // Update job with schedule
-          await db.query(`
+          const beforeSchedule = await db.query(`SELECT * FROM jobs WHERE id = $1`, [job.id]);
+          const oldRow = beforeSchedule.rows[0] || job;
+
+          const up = await db.query(
+            `
             UPDATE jobs SET
               machine_id = $1,
               scheduled_start = $2,
               scheduled_end = $3,
               updated_at = CURRENT_TIMESTAMP
             WHERE id = $4
-          `, [machine.id, startTime, endTime, job.id]);
+            RETURNING *
+          `,
+            [machine.id, startTime, endTime, job.id]
+          );
+
+          try {
+            await logJobFieldChanges({
+              oldRow,
+              newRow: up.rows[0],
+              actorId: null,
+              actorRole: 'system',
+              actorName: 'Auto scheduler',
+            });
+          } catch (e) {
+            console.error('Scheduler activity log error:', e);
+          }
 
           scheduled.push({
             job_id: job.id,

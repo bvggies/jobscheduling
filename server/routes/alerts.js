@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { checkAlerts } = require('../utils/alerts');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
-// Get all alerts
+router.use(requireAuth, requireAdmin);
+
 router.get('/', async (req, res) => {
   try {
     const { read } = req.query;

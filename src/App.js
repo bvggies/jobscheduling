@@ -4,8 +4,12 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import './App.css';
 
-import Navbar from './components/Layout/Navbar';
-import Sidebar from './components/Layout/Sidebar';
+import { AuthProvider } from './context/AuthContext';
+import { PrivateRoute } from './components/PrivateRoute';
+import AdminLayout from './layouts/AdminLayout';
+import CustomerLayout from './layouts/CustomerLayout';
+import HomeRedirect from './components/HomeRedirect';
+
 import Dashboard from './pages/Dashboard';
 import Jobs from './pages/Jobs';
 import JobForm from './pages/JobForm';
@@ -14,11 +18,20 @@ import MachineForm from './pages/MachineForm';
 import Schedule from './pages/Schedule';
 import Analytics from './pages/Analytics';
 import Alerts from './pages/Alerts';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import FeedbackAdmin from './pages/FeedbackAdmin';
+import WorkActivity from './pages/WorkActivity';
 
-// Component to refresh AOS on route change
+import CustomerDashboard from './pages/customer/CustomerDashboard';
+import CustomerJobs from './pages/customer/CustomerJobs';
+import CustomerJobForm from './pages/customer/CustomerJobForm';
+import CustomerJobDetail from './pages/customer/CustomerJobDetail';
+import CustomerFeedback from './pages/customer/CustomerFeedback';
+
 function AOSRefresh() {
   const location = useLocation();
-  
+
   useEffect(() => {
     AOS.refresh();
   }, [location]);
@@ -31,21 +44,21 @@ function App() {
     AOS.init({
       duration: 1000,
       easing: 'ease-in-out',
-      once: false, // Changed to false so animations can replay
+      once: false,
       mirror: false,
     });
   }, []);
 
   return (
-    <Router>
-      <div className="App">
+    <AuthProvider>
+      <Router>
         <AOSRefresh />
-        <Navbar />
-        <div className="app-container">
-          <Sidebar />
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          <Route element={<PrivateRoute allowedRoles={['admin']} />}>
+            <Route element={<AdminLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/jobs" element={<Jobs />} />
               <Route path="/jobs/new" element={<JobForm />} />
@@ -56,11 +69,26 @@ function App() {
               <Route path="/schedule" element={<Schedule />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/alerts" element={<Alerts />} />
-            </Routes>
-          </main>
-        </div>
-      </div>
-    </Router>
+              <Route path="/feedback" element={<FeedbackAdmin />} />
+              <Route path="/activity" element={<WorkActivity />} />
+            </Route>
+          </Route>
+
+          <Route element={<PrivateRoute allowedRoles={['customer']} />}>
+            <Route element={<CustomerLayout />}>
+              <Route path="/portal" element={<CustomerDashboard />} />
+              <Route path="/portal/jobs" element={<CustomerJobs />} />
+              <Route path="/portal/jobs/new" element={<CustomerJobForm />} />
+              <Route path="/portal/jobs/:id" element={<CustomerJobDetail />} />
+              <Route path="/portal/feedback" element={<CustomerFeedback />} />
+            </Route>
+          </Route>
+
+          <Route path="/" element={<HomeRedirect />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
