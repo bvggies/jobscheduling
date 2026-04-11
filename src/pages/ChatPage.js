@@ -16,7 +16,7 @@ function formatTime(iso) {
 
 export default function ChatPage() {
   const { user } = useAuth();
-  const { socket, connected } = useChatSocket();
+  const { socket, connected, realtimeDisabled } = useChatSocket();
   const [threads, setThreads] = useState([]);
   const [selectedThreadId, setSelectedThreadId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -217,9 +217,13 @@ export default function ChatPage() {
             {isAdmin ? 'Message your team and customers in real time.' : 'Message the shop — replies sync instantly.'}
           </p>
         </div>
-        <div className={`chat-live-pill ${connected ? 'chat-live-pill--on' : ''}`}>
+        <div
+          className={`chat-live-pill ${connected ? 'chat-live-pill--on' : ''} ${
+            realtimeDisabled ? 'chat-live-pill--muted' : ''
+          }`}
+        >
           <span className="chat-live-dot" aria-hidden />
-          {connected ? 'Live' : 'Connecting…'}
+          {realtimeDisabled ? 'REST mode' : connected ? 'Live' : 'Connecting…'}
         </div>
       </div>
 

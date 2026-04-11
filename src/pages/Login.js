@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { formatApiError } from '../services/api';
 import AuthPageChrome from '../components/AuthPageChrome';
 import './Auth.css';
 
@@ -28,8 +29,7 @@ export default function Login() {
       const home = u.role === 'admin' ? '/dashboard' : u.role === 'worker' ? '/worker' : '/portal';
       navigate(home, { replace: true });
     } catch (err) {
-      const msg = err.response?.data?.error || 'Unable to sign in.';
-      setError(msg);
+      setError(formatApiError(err, 'Unable to sign in.'));
     } finally {
       setLoading(false);
     }

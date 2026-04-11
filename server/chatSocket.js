@@ -1,4 +1,3 @@
-const { Server } = require('socket.io');
 const { verifyTokenString } = require('./middleware/auth');
 
 let ioInstance = null;
@@ -8,6 +7,14 @@ function getChatIO() {
 }
 
 function attachChatSocket(httpServer, corsOrigins) {
+  let Server;
+  try {
+    ({ Server } = require('socket.io'));
+  } catch (e) {
+    console.warn('socket.io is not installed; HTTP API still runs, live chat WebSocket is disabled.', e.message);
+    return null;
+  }
+
   const io = new Server(httpServer, {
     path: '/socket.io',
     cors: {

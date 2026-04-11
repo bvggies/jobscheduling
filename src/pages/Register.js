@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { formatApiError } from '../services/api';
 import AuthPageChrome from '../components/AuthPageChrome';
 import './Auth.css';
 
@@ -26,8 +27,7 @@ export default function Register() {
       await register({ name, email, password });
       navigate('/portal', { replace: true });
     } catch (err) {
-      const msg = err.response?.data?.error || 'Registration failed.';
-      setError(msg);
+      setError(formatApiError(err, 'Registration failed.'));
     } finally {
       setLoading(false);
     }

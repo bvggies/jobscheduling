@@ -46,6 +46,12 @@
   color: #059669;
 }
 
+.chat-live-pill--muted {
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.25);
+  color: var(--text-secondary, #64748b);
+}
+
 .chat-live-dot {
   width: 8px;
   height: 8px;

@@ -4,6 +4,16 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 const TOKEN_KEY = 'jobscheduler_token';
 const USER_KEY = 'jobscheduler_user';
 
+/** Safe string for UI when axios/Vercel returns `error` as an object. */
+export function formatApiError(err, fallback = 'Something went wrong.') {
+  const d = err?.response?.data;
+  if (typeof d?.error === 'string') return d.error;
+  if (typeof d?.message === 'string') return d.message;
+  if (d?.error && typeof d.error === 'object' && typeof d.error.message === 'string') return d.error.message;
+  if (typeof err?.message === 'string' && err.message !== 'Network Error') return err.message;
+  return fallback;
+}
+
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -96,6 +106,29 @@ export function getChatSocketOrigin() {
   if (process.env.REACT_APP_WS_ORIGIN) return process.env.REACT_APP_WS_ORIGIN.replace(/\/$/, '');
   const base = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
   return base.replace(/\/api\/?$/, '');
+}
+
+/**
+ * Whether the SPA should open a Socket.IO connection.
+ * Vercel serverless cannot host Socket.IO; set REACT_APP_WS_ORIGIN to a long-lived Node host for live chat.
+ */
+export function isChatSocketEnabled() {
+  if (process.env.REACT_APP_CHAT_SOCKET === '0' || process.env.REACT_APP_CHAT_SOCKET === 'false') {
+    return false;
+  }
+  if (process.env.REACT_APP_CHAT_SOCKET === '1' || process.env.REACT_APP_CHAT_SOCKET === 'true') {
+    return true;
+  }
+  if (process.env.REACT_APP_WS_ORIGIN) return true;
+  const api = process.env.REACT_APP_API_URL || '';
+  if (/localhost|127\.0\.0\.1/i.test(api)) return true;
+  try {
+    const host = new URL(api).hostname;
+    if (host.endsWith('.vercel.app')) return false;
+  } catch {
+    /* ignore */
+  }
+  return true;
 }
 
 export const chatAPI = {

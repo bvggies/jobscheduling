@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
-import { getChatSocketOrigin } from '../services/api';
+import { getChatSocketOrigin, isChatSocketEnabled } from '../services/api';
 
 const ChatSocketContext = createContext(null);
 
@@ -9,6 +9,7 @@ export function ChatSocketProvider({ children }) {
   const { user, authReady } = useAuth();
   const [socket, setSocket] = useState(null);
   const [connected, setConnected] = useState(false);
+  const socketAllowed = isChatSocketEnabled();
 
   useEffect(() => {
     if (!authReady || !user) {
@@ -22,6 +23,15 @@ export function ChatSocketProvider({ children }) {
 
     const token = localStorage.getItem('jobscheduler_token');
     if (!token) {
+      setConnected(false);
+      return undefined;
+    }
+
+    if (!socketAllowed) {
+      setSocket((prev) => {
+        if (prev) prev.disconnect();
+        return null;
+      });
       setConnected(false);
       return undefined;
     }
@@ -42,9 +52,12 @@ export function ChatSocketProvider({ children }) {
       s.disconnect();
       setConnected(false);
     };
-  }, [authReady, user]);
+  }, [authReady, user, socketAllowed]);
 
-  const value = useMemo(() => ({ socket, connected }), [socket, connected]);
+  const value = useMemo(
+    () => ({ socket, connected, realtimeDisabled: !socketAllowed }),
+    [socket, connected, socketAllowed]
+  );
   return <ChatSocketContext.Provider value={value}>{children}</ChatSocketContext.Provider>;
 }
 
