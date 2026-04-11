@@ -10,7 +10,7 @@ import {
   SUBSTRATES,
   FINISHING_OPTIONS,
 } from '../utils/constants';
-import { FiSave, FiX, FiDollarSign, FiUserPlus } from 'react-icons/fi';
+import { FiSave, FiX, FiDollarSign, FiUserPlus, FiTool } from 'react-icons/fi';
 import JobPayment from '../components/JobPayment';
 import { STATUSES } from '../utils/constants';
 import './JobForm.css';
@@ -37,9 +37,11 @@ const JobForm = ({ portalMode = false }) => {
     deposit_required: '',
     status: 'Not Started',
     assigned_user_id: '',
+    assigned_worker_id: '',
   });
 
   const [customers, setCustomers] = useState([]);
+  const [workers, setWorkers] = useState([]);
   const [newCustomer, setNewCustomer] = useState({ name: '', email: '', password: '' });
   const [creatingCustomer, setCreatingCustomer] = useState(false);
   const [createCustomerError, setCreateCustomerError] = useState('');
@@ -68,6 +70,7 @@ const JobForm = ({ portalMode = false }) => {
         deposit_required: job.deposit_required || '',
         status: job.status || 'Not Started',
         assigned_user_id: job.user_id != null ? String(job.user_id) : '',
+        assigned_worker_id: job.assigned_worker_id != null ? String(job.assigned_worker_id) : '',
       });
     } catch (error) {
       console.error('Error loading job:', error);
@@ -100,6 +103,22 @@ const JobForm = ({ portalMode = false }) => {
         if (!cancelled) setCustomers(data || []);
       } catch {
         if (!cancelled) setCustomers([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [portalMode, isAdmin]);
+
+  useEffect(() => {
+    if (portalMode || !isAdmin) return undefined;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await usersAPI.getWorkers();
+        if (!cancelled) setWorkers(data || []);
+      } catch {
+        if (!cancelled) setWorkers([]);
       }
     })();
     return () => {
@@ -167,7 +186,7 @@ const JobForm = ({ portalMode = false }) => {
     setLoading(true);
 
     try {
-      const { assigned_user_id, ...rest } = formData;
+      const { assigned_user_id, assigned_worker_id, ...rest } = formData;
       const data = {
         ...rest,
         quantity: parseInt(formData.quantity, 10),
@@ -176,6 +195,8 @@ const JobForm = ({ portalMode = false }) => {
       };
       if (!portalMode && isAdmin) {
         data.user_id = assigned_user_id === '' ? null : parseInt(assigned_user_id, 10);
+        data.assigned_worker_id =
+          assigned_worker_id === '' ? null : parseInt(assigned_worker_id, 10);
       }
 
       if (isEdit) {
@@ -435,6 +456,31 @@ const JobForm = ({ portalMode = false }) => {
                     {creatingCustomer ? 'Creating…' : 'Create customer & link to this job'}
                   </button>
                 </div>
+              </div>
+            ) : null}
+            {!portalMode && isAdmin ? (
+              <div className="form-group grid-span-2" style={{ marginTop: '1rem' }}>
+                <label className="form-label">
+                  <FiTool style={{ verticalAlign: 'middle', marginRight: 6 }} />
+                  Production lead (worker)
+                </label>
+                <p className="form-hint" style={{ marginBottom: '0.75rem' }}>
+                  Assign a shop worker who can post progress updates and change job status. Linked customers see
+                  this activity on their job timeline.
+                </p>
+                <select
+                  name="assigned_worker_id"
+                  value={formData.assigned_worker_id}
+                  onChange={handleChange}
+                  className="form-control"
+                >
+                  <option value="">No production assignee</option>
+                  {workers.map((w) => (
+                    <option key={w.id} value={String(w.id)}>
+                      {w.name} ({w.email})
+                    </option>
+                  ))}
+                </select>
               </div>
             ) : null}
           </div>

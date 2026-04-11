@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiBell, FiLogOut, FiSearch } from 'react-icons/fi';
+import { FiBell, FiLogOut, FiSearch, FiMoon, FiSun } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { alertsAPI } from '../../services/api';
 import './Navbar.css';
 
 const Navbar = ({ variant = 'admin' }) => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [unreadAlerts, setUnreadAlerts] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (variant !== 'admin' || !user) return undefined;
@@ -26,6 +30,16 @@ const Navbar = ({ variant = 'admin' }) => {
     };
   }, [variant, user]);
 
+  const submitSearch = (e) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) {
+      navigate('/jobs');
+      return;
+    }
+    navigate(`/jobs?q=${encodeURIComponent(q)}`);
+  };
+
   return (
     <motion.nav
       className="navbar"
@@ -39,10 +53,30 @@ const Navbar = ({ variant = 'admin' }) => {
           <span className="navbar-title">JobScheduler</span>
         </Link>
         <div className="navbar-actions">
-          <div className="navbar-search">
-            <FiSearch className="search-icon" />
-            <input type="text" placeholder="Search..." className="search-input" />
-          </div>
+          {variant === 'admin' ? (
+            <form className="navbar-search-form" onSubmit={submitSearch}>
+              <div className="navbar-search">
+                <FiSearch className="search-icon" />
+                <input
+                  type="search"
+                  placeholder="Search jobs, customers, PO…"
+                  className="search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search jobs"
+                />
+              </div>
+            </form>
+          ) : null}
+          <button
+            type="button"
+            className="navbar-icon-btn navbar-theme-btn"
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <FiSun /> : <FiMoon />}
+          </button>
           {variant === 'admin' ? (
             <Link to="/alerts" className="navbar-icon-btn" title="Alerts">
               <FiBell />
@@ -60,4 +94,3 @@ const Navbar = ({ variant = 'admin' }) => {
 };
 
 export default Navbar;
-

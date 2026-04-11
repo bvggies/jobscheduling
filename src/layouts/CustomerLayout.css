@@ -1,6 +1,10 @@
 .customer-app {
   min-height: 100vh;
-  background: var(--light-color);
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 40%, #eef2f7 100%);
+  background-image:
+    radial-gradient(ellipse 90% 50% at 0% 0%, rgba(37, 99, 235, 0.06), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 100% 10%, rgba(13, 148, 136, 0.05), transparent 50%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 .customer-topbar {
@@ -12,19 +16,32 @@
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  padding: 0.75rem 1.5rem;
-  background: #fff;
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: var(--shadow);
+  padding: 0.85rem 1.5rem;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 8px 32px -12px rgba(15, 23, 42, 0.08);
 }
 
 .customer-brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  gap: 0.55rem;
   text-decoration: none;
+  color: var(--text-primary);
+}
+
+.customer-brand-text {
+  font-family: var(--font-display), var(--font-sans);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 45%, #0d9488 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .customer-brand-logo {
@@ -42,23 +59,26 @@
 .customer-nav-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.5rem 0.85rem;
-  border-radius: 0.5rem;
+  gap: 0.4rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 0.65rem;
   text-decoration: none;
   color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .customer-nav-link:hover {
-  background: var(--light-color);
+  background: rgba(15, 23, 42, 0.05);
   color: var(--text-primary);
 }
 
 .customer-nav-link.active {
-  background: rgba(37, 99, 235, 0.1);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(13, 148, 136, 0.08));
   color: var(--primary-color);
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.12);
 }
 
 .customer-user {
@@ -79,7 +99,7 @@
 .customer-main {
   max-width: 960px;
   margin: 0 auto;
-  padding: 2rem 1.25rem 3rem;
+  padding: 2.25rem 1.35rem 3.5rem;
 }
 
 @media (max-width: 768px) {

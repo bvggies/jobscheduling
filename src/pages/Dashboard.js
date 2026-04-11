@@ -13,6 +13,7 @@ import {
   FiUsers,
   FiPackage,
 } from 'react-icons/fi';
+import { endOfWeek, format, startOfWeek } from 'date-fns';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -21,6 +22,7 @@ const Dashboard = () => {
     inProgress: 0,
     completed: 0,
     late: 0,
+    dueThisWeek: 0,
   });
   const [analytics, setAnalytics] = useState(null);
   const [recentJobs, setRecentJobs] = useState([]);
@@ -42,11 +44,20 @@ const Dashboard = () => {
       const jobs = jobsRes.data;
       setRecentJobs(jobs.slice(0, 5));
 
+      const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd');
+      const weekEnd = format(endOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd');
+      const dueThisWeek = jobs.filter((j) => {
+        if (!j.due_date || j.status === 'Completed') return false;
+        const d = String(j.due_date).split('T')[0];
+        return d >= weekStart && d <= weekEnd;
+      }).length;
+
       setStats({
         totalJobs: jobs.length,
         inProgress: jobs.filter((j) => j.status === 'In Progress').length,
         completed: jobs.filter((j) => j.status === 'Completed').length,
         late: analyticsRes.data.lateJobs?.length || 0,
+        dueThisWeek,
       });
 
       setAnalytics(analyticsRes.data);
@@ -85,6 +96,13 @@ const Dashboard = () => {
       icon: FiAlertTriangle,
       color: '#ef4444',
       link: '/alerts',
+    },
+    {
+      title: 'Due this week',
+      value: stats.dueThisWeek,
+      icon: FiCalendar,
+      color: '#6366f1',
+      link: `/jobs?start_date=${format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd')}&end_date=${format(endOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd')}`,
     },
   ];
 

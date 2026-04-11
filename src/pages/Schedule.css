@@ -10,10 +10,11 @@
 }
 
 .machine-schedule {
-  background: white;
-  border-radius: 0.75rem;
+  background: var(--surface-elevated);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--shadow);
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .machine-schedule-header {

@@ -18,5 +18,7 @@ export default function HomeRedirect() {
     return <Navigate to="/login" replace />;
   }
 
-  return <Navigate to={user.role === 'admin' ? '/dashboard' : '/portal'} replace />;
+  const home =
+    user.role === 'admin' ? '/dashboard' : user.role === 'worker' ? '/worker' : '/portal';
+  return <Navigate to={home} replace />;
 }

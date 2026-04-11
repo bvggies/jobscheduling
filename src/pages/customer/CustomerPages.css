@@ -1,14 +1,36 @@
 .customer-page-header {
-  margin-bottom: 1.75rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  position: relative;
+}
+
+.customer-page-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 72px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #2563eb, #0d9488);
 }
 
 .customer-page-header h1 {
-  font-size: 1.75rem;
-  margin-bottom: 0.35rem;
+  font-family: var(--font-display), var(--font-sans);
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  margin-bottom: 0.4rem;
+  line-height: 1.2;
+  color: var(--text-primary);
 }
 
 .customer-page-header p {
   color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.55;
+  max-width: 40rem;
 }
 
 .customer-tiles {
@@ -22,19 +44,20 @@
   display: flex;
   gap: 1rem;
   align-items: center;
-  padding: 1.25rem;
-  border-radius: 0.75rem;
-  background: #fff;
-  border: 1px solid var(--border-color);
+  padding: 1.35rem 1.4rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.07);
   text-decoration: none;
   color: inherit;
   box-shadow: var(--shadow);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .customer-tile:hover {
-  border-color: var(--primary-color);
+  border-color: rgba(37, 99, 235, 0.2);
   box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
 }
 
 .customer-tile-icon {
@@ -43,7 +66,10 @@
 }
 
 .customer-tile h2 {
+  font-family: var(--font-display), var(--font-sans);
   font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   margin-bottom: 0.2rem;
 }
 
@@ -53,10 +79,10 @@
 }
 
 .customer-info-panel {
-  background: #fff;
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 1rem;
+  padding: 1.5rem 1.6rem;
   box-shadow: var(--shadow);
 }
 

@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { scheduleJobs } = require('../utils/scheduler');
-const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { requireAuth, requireAdmin, requireAdminOrWorker } = require('../middleware/auth');
 const { logJobFieldChanges } = require('../utils/jobUpdates');
 
-router.use(requireAuth, requireAdmin);
+router.use(requireAuth);
 
-router.get('/', async (req, res) => {
+router.get('/', requireAdminOrWorker, async (req, res) => {
   try {
     const { start_date, end_date } = req.query;
     let query = `
@@ -37,8 +37,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Auto-schedule jobs
-router.post('/auto-schedule', async (req, res) => {
+router.post('/auto-schedule', requireAdmin, async (req, res) => {
   try {
     const scheduled = await scheduleJobs();
     res.json({ message: 'Jobs scheduled successfully', scheduled });
@@ -48,8 +47,7 @@ router.post('/auto-schedule', async (req, res) => {
   }
 });
 
-// Update job schedule
-router.put('/:jobId', async (req, res) => {
+router.put('/:jobId', requireAdmin, async (req, res) => {
   try {
     const { machine_id, scheduled_start, scheduled_end } = req.body;
     const before = await db.query(`SELECT * FROM jobs WHERE id = $1`, [req.params.jobId]);
@@ -94,4 +92,3 @@ router.put('/:jobId', async (req, res) => {
 });
 
 module.exports = router;
-

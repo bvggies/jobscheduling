@@ -5,9 +5,11 @@ import 'aos/dist/aos.css';
 import './App.css';
 
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { PrivateRoute } from './components/PrivateRoute';
 import AdminLayout from './layouts/AdminLayout';
 import CustomerLayout from './layouts/CustomerLayout';
+import WorkerLayout from './layouts/WorkerLayout';
 import HomeRedirect from './components/HomeRedirect';
 
 import Dashboard from './pages/Dashboard';
@@ -22,6 +24,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import FeedbackAdmin from './pages/FeedbackAdmin';
 import WorkActivity from './pages/WorkActivity';
+import TeamManagement from './pages/TeamManagement';
+import WorkerDashboard from './pages/worker/WorkerDashboard';
+import WorkerJobDetail from './pages/worker/WorkerJobDetail';
 
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import CustomerJobs from './pages/customer/CustomerJobs';
@@ -50,8 +55,9 @@ function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <Router>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
         <AOSRefresh />
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -71,6 +77,18 @@ function App() {
               <Route path="/alerts" element={<Alerts />} />
               <Route path="/feedback" element={<FeedbackAdmin />} />
               <Route path="/activity" element={<WorkActivity />} />
+              <Route path="/team" element={<TeamManagement />} />
+            </Route>
+          </Route>
+
+          <Route element={<PrivateRoute allowedRoles={['worker']} />}>
+            <Route element={<WorkerLayout />}>
+              <Route path="/worker" element={<WorkerDashboard />} />
+              <Route path="/worker/jobs/:id" element={<WorkerJobDetail />} />
+              <Route path="/worker/jobs" element={<Jobs workerMode />} />
+              <Route path="/worker/schedule" element={<Schedule workerView />} />
+              <Route path="/worker/activity" element={<WorkActivity />} />
+              <Route path="/worker/alerts" element={<Alerts />} />
             </Route>
           </Route>
 
@@ -87,8 +105,9 @@ function App() {
           <Route path="/" element={<HomeRedirect />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </Router>
-    </AuthProvider>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

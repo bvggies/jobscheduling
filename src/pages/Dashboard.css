@@ -4,65 +4,90 @@
 }
 
 .dashboard-header {
-  margin-bottom: 2rem;
+  margin-bottom: 2.25rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  position: relative;
+}
+
+.dashboard-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 120px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #2563eb, #0d9488);
+  opacity: 0.85;
 }
 
 .dashboard-header h1 {
-  font-size: 2.5rem;
+  font-family: var(--font-display), var(--font-sans);
+  font-size: 2.25rem;
   font-weight: 700;
+  letter-spacing: -0.04em;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
+  line-height: 1.15;
 }
 
 .dashboard-header p {
-  font-size: 1.125rem;
+  font-size: 1.05rem;
   color: var(--text-secondary);
+  max-width: 42rem;
+  line-height: 1.55;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  gap: 1.35rem;
   margin-bottom: 2rem;
 }
 
 .stat-card {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
+  background: var(--surface-elevated);
+  border-radius: 1rem;
+  padding: 1.5rem 1.6rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
   box-shadow: var(--shadow);
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.35rem;
   text-decoration: none;
   color: var(--text-primary);
-  transition: all 0.3s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-premium);
+  border-color: rgba(37, 99, 235, 0.12);
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 0.75rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 0.85rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.45rem;
 }
 
 .stat-content h3 {
-  font-size: 2rem;
+  font-family: var(--font-display), var(--font-sans);
+  font-size: 1.85rem;
   font-weight: 700;
-  margin-bottom: 0.25rem;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.2rem;
 }
 
 .stat-content p {
   color: var(--text-secondary);
   font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .dashboard-grid {

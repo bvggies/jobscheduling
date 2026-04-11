@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { alertsAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns';
 import {
   FiAlertCircle,
@@ -13,6 +14,7 @@ import {
 import './Alerts.css';
 
 const Alerts = () => {
+  const { isWorker } = useAuth();
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, unread, read
@@ -105,13 +107,19 @@ const Alerts = () => {
     >
       <div className="page-header">
         <div>
-          <h1>Alerts & Notifications</h1>
-          <p>Stay informed about important events</p>
+          <h1>{isWorker ? 'Messages & notifications' : 'Alerts & Notifications'}</h1>
+          <p>
+            {isWorker
+              ? 'Customer notes on jobs you lead and other alerts for you.'
+              : 'Stay informed about important events'}
+          </p>
         </div>
         <div className="alerts-actions">
-          <button onClick={handleCheckAlerts} className="btn btn-outline">
-            Check for Alerts
-          </button>
+          {!isWorker ? (
+            <button onClick={handleCheckAlerts} className="btn btn-outline">
+              Check for Alerts
+            </button>
+          ) : null}
           {unreadCount > 0 && (
             <button onClick={handleMarkAllAsRead} className="btn btn-primary">
               <FiCheck /> Mark All as Read
@@ -177,7 +185,7 @@ const Alerts = () => {
                 <p className="alert-message">{alert.message}</p>
                 {alert.job_id && (
                   <Link
-                    to={`/jobs/edit/${alert.job_id}`}
+                    to={isWorker ? `/worker/jobs/${alert.job_id}` : `/jobs/edit/${alert.job_id}`}
                     className="alert-link"
                   >
                     View Job →

@@ -66,6 +66,10 @@ export const jobsAPI = {
 export const usersAPI = {
   getCustomers: () => api.get('/users/customers'),
   createCustomer: (data) => api.post('/users/customers', data),
+  getWorkers: () => api.get('/users/workers'),
+  createWorker: (data) => api.post('/users/workers', data),
+  updateUser: (id, data) => api.put(`/users/${id}`, data),
+  deleteUser: (id) => api.delete(`/users/${id}`),
 };
 
 export const activityAPI = {

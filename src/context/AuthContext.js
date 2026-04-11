@@ -72,6 +72,7 @@ export function AuthProvider({ children }) {
       refreshProfile,
       isAdmin: user?.role === 'admin',
       isCustomer: user?.role === 'customer',
+      isWorker: user?.role === 'worker',
     }),
     [user, authReady, login, register, logout, refreshProfile]
   );

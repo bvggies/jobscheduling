@@ -11,6 +11,7 @@ import {
   FiPlus,
   FiMessageSquare,
   FiActivity,
+  FiUsers,
 } from 'react-icons/fi';
 import './Sidebar.css';
 
@@ -26,12 +27,13 @@ const Sidebar = () => {
     { path: '/alerts', icon: FiAlertCircle, label: 'Alerts' },
     { path: '/feedback', icon: FiMessageSquare, label: 'Feedback' },
     { path: '/activity', icon: FiActivity, label: 'Work activity' },
+    { path: '/team', icon: FiUsers, label: 'Team' },
   ];
 
   return (
     <motion.aside
       className="sidebar"
-      initial={{ x: -250 }}
+      initial={{ x: -256 }}
       animate={{ x: 0 }}
       transition={{ duration: 0.5 }}
     >

@@ -4,10 +4,12 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { jobsAPI } from '../../services/api';
 import JobActivityPanel from '../../components/JobActivityPanel';
+import { useAuth } from '../../context/AuthContext';
 import { STATUS_COLORS } from '../../utils/constants';
-import './CustomerPages.css';
+import '../customer/CustomerPages.css';
 
-export default function CustomerJobDetail() {
+export default function WorkerJobDetail() {
+  const { user } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
@@ -41,7 +43,7 @@ export default function CustomerJobDetail() {
     return (
       <div className="customer-info-panel">
         <p>Job not found or you do not have access.</p>
-        <Link to="/portal/jobs" className="btn btn-outline" style={{ marginTop: '1rem' }}>
+        <Link to="/worker/jobs" className="btn btn-outline" style={{ marginTop: '1rem' }}>
           Back to jobs
         </Link>
       </div>
@@ -49,11 +51,18 @@ export default function CustomerJobDetail() {
   }
 
   const finishing = Array.isArray(job.finishing) ? job.finishing.join(', ') : job.finishing || '—';
+  const canUpdateProgress =
+    job.assigned_worker_id != null && Number(job.assigned_worker_id) === Number(user?.id);
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
       <div className="customer-page-header">
-        <button type="button" className="btn btn-outline btn-sm" onClick={() => navigate(-1)} style={{ marginBottom: '0.75rem' }}>
+        <button
+          type="button"
+          className="btn btn-outline btn-sm"
+          onClick={() => navigate(-1)}
+          style={{ marginBottom: '0.75rem' }}
+        >
           ← Back
         </button>
         <h1>{job.job_name}</h1>
@@ -62,19 +71,20 @@ export default function CustomerJobDetail() {
           <span style={{ color: STATUS_COLORS[job.status], fontWeight: 600 }}>{job.status}</span>
         </p>
       </div>
-      {job.assigned_worker_name ? (
-        <div
-          className="customer-form-panel"
-          style={{ borderLeft: '4px solid #3b82f6', marginBottom: '1rem' }}
-        >
-          <strong>Your production contact:</strong> {job.assigned_worker_name}
-          <p className="form-hint" style={{ marginBottom: 0, marginTop: '0.5rem' }}>
-            They post status changes in the timeline below. Use the Message the shop section to reach admins and
-            your production lead in the same thread.
+      {!canUpdateProgress ? (
+        <div className="customer-info-panel" style={{ marginBottom: '1rem' }}>
+          <p style={{ margin: 0 }}>
+            {job.assigned_worker_id
+              ? 'Another team member is the production lead on this job. You can review details, but only the assignee can post customer-visible progress here.'
+              : 'This job has no production assignee yet. Ask an admin to assign a floor lead so someone can post status and notes for the customer.'}
           </p>
         </div>
       ) : null}
       <div className="customer-form-panel customer-detail-grid">
+        <div className="customer-detail-item">
+          <label>Customer</label>
+          <span>{job.customer_name}</span>
+        </div>
         <div className="customer-detail-item">
           <label>Product</label>
           <span>{job.product_type}</span>
@@ -118,15 +128,7 @@ export default function CustomerJobDetail() {
       </div>
 
       <div className="customer-form-panel">
-        <JobActivityPanel
-          jobId={id}
-          canComment
-          pollMs={20000}
-          introTitle="Message the shop"
-          introText="Write below to reach admins and your assigned production lead (when one is set). They see your note here and get a notification so they can respond in this same thread."
-          composeLabel="Your message"
-          submitButtonLabel="Send message"
-        />
+        <JobActivityPanel jobId={id} canComment={canUpdateProgress} pollMs={20000} />
       </div>
     </motion.div>
   );

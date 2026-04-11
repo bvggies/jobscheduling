@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
-const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { requireAuth, requireAdmin, requireAdminOrWorker } = require('../middleware/auth');
 
-router.use(requireAuth, requireAdmin);
+router.use(requireAuth);
 
-router.get('/', async (req, res) => {
+router.get('/', requireAdminOrWorker, async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM machines ORDER BY name');
     res.json(result.rows);
@@ -15,12 +15,9 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get single machine
-router.get('/:id', async (req, res) => {
+router.get('/:id', requireAdminOrWorker, async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM machines WHERE id = $1', [
-      req.params.id,
-    ]);
+    const result = await db.query('SELECT * FROM machines WHERE id = $1', [req.params.id]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Machine not found' });
     }
@@ -31,8 +28,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create new machine
-router.post('/', async (req, res) => {
+router.post('/', requireAdmin, async (req, res) => {
   try {
     const { name, type, compatibility } = req.body;
     const result = await db.query(
@@ -46,8 +42,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update machine
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireAdmin, async (req, res) => {
   try {
     const { name, type, compatibility } = req.body;
     const result = await db.query(
@@ -64,12 +59,9 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete machine
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAdmin, async (req, res) => {
   try {
-    const result = await db.query('DELETE FROM machines WHERE id = $1 RETURNING *', [
-      req.params.id,
-    ]);
+    const result = await db.query('DELETE FROM machines WHERE id = $1 RETURNING *', [req.params.id]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Machine not found' });
     }
@@ -81,4 +73,3 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
-

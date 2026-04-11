@@ -48,6 +48,35 @@ async function logJobFieldChanges({ oldRow, newRow, actorId, actorRole, actorNam
     });
   }
 
+  if (norm(oldRow.assigned_worker_id) !== norm(newRow.assigned_worker_id)) {
+    const ids = [oldRow.assigned_worker_id, newRow.assigned_worker_id]
+      .map((x) => (x === undefined || x === null || x === '' ? null : parseInt(x, 10)))
+      .filter((n) => n !== null && !Number.isNaN(n));
+    const idNums = [...new Set(ids)];
+    let prevLabel = 'Unassigned';
+    let nextLabel = 'Unassigned';
+    if (idNums.length) {
+      const r = await db.query(`SELECT id, name FROM users WHERE id = ANY($1::int[])`, [idNums]);
+      const map = Object.fromEntries(r.rows.map((row) => [row.id, row.name]));
+      if (oldRow.assigned_worker_id != null && oldRow.assigned_worker_id !== '') {
+        const oid = parseInt(oldRow.assigned_worker_id, 10);
+        prevLabel = map[oid] || `Staff #${oid}`;
+      }
+      if (newRow.assigned_worker_id != null && newRow.assigned_worker_id !== '') {
+        const nid = parseInt(newRow.assigned_worker_id, 10);
+        nextLabel = map[nid] || `Staff #${nid}`;
+      }
+    }
+    await insertJobUpdate({
+      jobId: newRow.id,
+      actorId,
+      actorRole,
+      actorName,
+      kind: 'worker_assignment',
+      summary: `Production lead: ${prevLabel} → ${nextLabel}`,
+    });
+  }
+
   const schedOld = `${norm(oldRow.machine_id)}|${norm(oldRow.scheduled_start)}|${norm(oldRow.scheduled_end)}`;
   const schedNew = `${norm(newRow.machine_id)}|${norm(newRow.scheduled_start)}|${norm(newRow.scheduled_end)}`;
   if (schedOld !== schedNew) {

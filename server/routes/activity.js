@@ -1,6 +1,6 @@
 const express = require('express');
 const db = require('../config/database');
-const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { requireAuth, requireAdminOrWorker } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -27,7 +27,7 @@ router.get('/mine', requireAuth, async (req, res) => {
   }
 });
 
-router.get('/recent', requireAuth, requireAdmin, async (req, res) => {
+router.get('/recent', requireAuth, requireAdminOrWorker, async (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit, 10) || 50, 200);
     const result = await db.query(

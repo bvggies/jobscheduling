@@ -1,50 +1,86 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { jobsAPI, machinesAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { STATUSES, PRIORITY_COLORS, STATUS_COLORS } from '../utils/constants';
-import { FiPlus, FiEdit, FiTrash2, FiCheckCircle, FiPlay, FiClock, FiCopy, FiDownload, FiDollarSign } from 'react-icons/fi';
+import {
+  FiPlus,
+  FiEdit,
+  FiTrash2,
+  FiCheckCircle,
+  FiPlay,
+  FiClock,
+  FiCopy,
+  FiDownload,
+  FiDollarSign,
+  FiEye,
+  FiSearch,
+} from 'react-icons/fi';
 import { format } from 'date-fns';
 import './Jobs.css';
 
-const Jobs = () => {
+function readJobFiltersFromSearch(search) {
+  const sp = new URLSearchParams(search);
+  return {
+    status: sp.get('status') || '',
+    q: sp.get('q') || '',
+    start_date: sp.get('start_date') || '',
+    end_date: sp.get('end_date') || '',
+  };
+}
+
+const Jobs = ({ workerMode = false }) => {
+  const { user } = useAuth();
+  const location = useLocation();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchParams] = useSearchParams();
-  const [filters, setFilters] = useState({
-    status: searchParams.get('status') || '',
+  const [filters, setFilters] = useState(() => ({
+    ...readJobFiltersFromSearch(typeof window !== 'undefined' ? window.location.search : ''),
     customer: '',
     machine_id: '',
-    start_date: '',
-    end_date: '',
-  });
+  }));
+  const [debouncedFilters, setDebouncedFilters] = useState(filters);
+
   const [customers, setCustomers] = useState([]);
   const [customerSuggestions, setCustomerSuggestions] = useState([]);
   const [machines, setMachines] = useState([]);
   const [paymentModal, setPaymentModal] = useState({ show: false, job: null, type: null });
   const [paymentData, setPaymentData] = useState({ amount: '', date: new Date().toISOString().split('T')[0] });
 
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedFilters(filters), 320);
+    return () => clearTimeout(t);
+  }, [filters]);
+
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...readJobFiltersFromSearch(location.search),
+      customer: prev.customer,
+      machine_id: prev.machine_id,
+    }));
+  }, [location.search]);
+
   const loadJobs = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await jobsAPI.getAll(filters);
+      const response = await jobsAPI.getAll(debouncedFilters);
       setJobs(response.data);
-      
-      // Extract unique customers for autocomplete
-      const uniqueCustomers = [...new Set(response.data.map(job => job.customer_name))].sort();
+
+      const uniqueCustomers = [...new Set(response.data.map((job) => job.customer_name))].sort();
       setCustomers(uniqueCustomers);
-      
+
       setLoading(false);
     } catch (error) {
       console.error('Error loading jobs:', error);
       setLoading(false);
     }
-  }, [filters]);
+  }, [debouncedFilters]);
 
   useEffect(() => {
     loadJobs();
-    loadMachines();
-  }, [loadJobs]);
+    if (!workerMode) loadMachines();
+  }, [loadJobs, workerMode]);
 
   const loadMachines = async () => {
     try {
@@ -266,21 +302,36 @@ const Jobs = () => {
     >
       <div className="page-header">
         <div>
-          <h1>Jobs</h1>
-          <p>Manage all your print jobs</p>
+          <h1>{workerMode ? 'Shop floor · Jobs' : 'Jobs'}</h1>
+          <p>{workerMode ? 'View and update job status' : 'Manage all your print jobs'}</p>
         </div>
         <div className="page-header-actions">
-          <button onClick={handleExport} className="btn btn-outline" title="Export to CSV">
+          <button onClick={handleExport} className="btn btn-outline" title="Export current list to CSV">
             <FiDownload /> Export
           </button>
-          <Link to="/jobs/new" className="btn btn-primary">
-            <FiPlus /> New Job
-          </Link>
+          {!workerMode ? (
+            <Link to="/jobs/new" className="btn btn-primary">
+              <FiPlus /> New Job
+            </Link>
+          ) : null}
         </div>
       </div>
 
       <div className="card">
         <div className="filters">
+          <div className="filter-group filter-group-wide">
+            <label>Search</label>
+            <div className="jobs-search-wrap">
+              <FiSearch className="jobs-search-icon" aria-hidden />
+              <input
+                type="search"
+                className="form-control jobs-search-input"
+                placeholder="Job name, customer, PO, product, or ID…"
+                value={filters.q}
+                onChange={(e) => setFilters({ ...filters, q: e.target.value })}
+              />
+            </div>
+          </div>
           <div className="filter-group">
             <label>Status</label>
             <select
@@ -356,6 +407,7 @@ const Jobs = () => {
             <tr>
               <th>Job Name</th>
               <th>Customer</th>
+              <th>Floor lead</th>
               <th>Product</th>
               <th>Quantity</th>
               <th>Due Date</th>
@@ -369,17 +421,24 @@ const Jobs = () => {
           <tbody>
             {jobs.length === 0 ? (
               <tr>
-                <td colSpan="10" className="text-center">
+                <td colSpan="11" className="text-center">
                   <div className="empty-state">
                     <p>No jobs found</p>
-                    <Link to="/jobs/new" className="btn btn-primary btn-sm mt-2">
-                      Create First Job
-                    </Link>
+                    {!workerMode ? (
+                      <Link to="/jobs/new" className="btn btn-primary btn-sm mt-2">
+                        Create First Job
+                      </Link>
+                    ) : null}
                   </div>
                 </td>
               </tr>
             ) : (
-              jobs.map((job) => (
+              jobs.map((job) => {
+                const workerCanAct =
+                  !workerMode ||
+                  (job.assigned_worker_id != null &&
+                    Number(job.assigned_worker_id) === Number(user?.id));
+                return (
                 <tr key={job.id}>
                   <td>
                     <strong>{job.job_name}</strong>
@@ -390,6 +449,22 @@ const Jobs = () => {
                     )}
                   </td>
                   <td>{job.customer_name}</td>
+                  <td>
+                    {job.assigned_worker_name ? (
+                      <span>
+                        {job.assigned_worker_name}
+                        {workerMode &&
+                        job.assigned_worker_id != null &&
+                        Number(job.assigned_worker_id) === Number(user?.id) ? (
+                          <span className="badge" style={{ marginLeft: 6, fontSize: '0.7rem' }}>
+                            You
+                          </span>
+                        ) : null}
+                      </span>
+                    ) : (
+                      <span className="text-secondary">—</span>
+                    )}
+                  </td>
                   <td>{job.product_type}</td>
                   <td>{job.quantity.toLocaleString()}</td>
                   <td>
@@ -440,42 +515,48 @@ const Jobs = () => {
                       >
                         {job.status}
                       </span>
-                      <div className="status-actions">
-                        {getNextStatus(job.status).map((nextStatus) => (
-                          <button
-                            key={nextStatus}
-                            onClick={() => handleStatusChange(job.id, nextStatus, job)}
-                            className="status-btn"
-                            title={`Mark as ${nextStatus}`}
-                            style={{
-                              backgroundColor: `${STATUS_COLORS[nextStatus]}20`,
-                              color: STATUS_COLORS[nextStatus],
-                            }}
-                          >
-                            {getStatusIcon(nextStatus)}
-                            <span>{nextStatus}</span>
-                          </button>
-                        ))}
-                        {getNextStatus(job.status).length === 0 && job.status !== 'Completed' && (
-                          <select
-                            onChange={(e) => {
-                              if (e.target.value) {
-                                handleStatusChange(job.id, e.target.value, job);
-                                e.target.value = '';
-                              }
-                            }}
-                            className="status-select"
-                            title="Change status"
-                          >
-                            <option value="">Change...</option>
-                            {STATUSES.filter(s => s !== job.status).map((status) => (
-                              <option key={status} value={status}>
-                                {status}
-                              </option>
-                            ))}
-                          </select>
-                        )}
-                      </div>
+                      {workerCanAct ? (
+                        <div className="status-actions">
+                          {getNextStatus(job.status).map((nextStatus) => (
+                            <button
+                              key={nextStatus}
+                              onClick={() => handleStatusChange(job.id, nextStatus, job)}
+                              className="status-btn"
+                              title={`Mark as ${nextStatus}`}
+                              style={{
+                                backgroundColor: `${STATUS_COLORS[nextStatus]}20`,
+                                color: STATUS_COLORS[nextStatus],
+                              }}
+                            >
+                              {getStatusIcon(nextStatus)}
+                              <span>{nextStatus}</span>
+                            </button>
+                          ))}
+                          {getNextStatus(job.status).length === 0 && job.status !== 'Completed' && (
+                            <select
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  handleStatusChange(job.id, e.target.value, job);
+                                  e.target.value = '';
+                                }
+                              }}
+                              className="status-select"
+                              title="Change status"
+                            >
+                              <option value="">Change...</option>
+                              {STATUSES.filter((s) => s !== job.status).map((status) => (
+                                <option key={status} value={status}>
+                                  {status}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                      ) : workerMode ? (
+                        <p className="text-secondary" style={{ fontSize: '0.78rem', marginTop: 6, marginBottom: 0 }}>
+                          Only the assigned floor lead can change status here.
+                        </p>
+                      ) : null}
                     </div>
                   </td>
                   <td>
@@ -484,90 +565,104 @@ const Jobs = () => {
                         <span className="payment-icon">{getPaymentIcon(job)}</span>
                         <span className="payment-text">{getPaymentStatus(job)}</span>
                       </div>
-                      <div className="payment-actions">
-                        {job.deposit_status !== 'Received' && job.deposit_required > 0 && (
-                          <button
-                            onClick={() => openPaymentModal(job, 'deposit')}
-                            className="payment-action-btn"
-                            title="Record Deposit"
-                          >
-                            <FiDollarSign /> Deposit
-                          </button>
-                        )}
-                        {job.payment_status !== 'Paid' && job.deposit_status === 'Received' && (
-                          <button
-                            onClick={() => openPaymentModal(job, 'final')}
-                            className="payment-action-btn"
-                            title="Record Final Payment"
-                          >
-                            <FiDollarSign /> Final
-                          </button>
-                        )}
-                      </div>
+                      {!workerMode ? (
+                        <div className="payment-actions">
+                          {job.deposit_status !== 'Received' && job.deposit_required > 0 && (
+                            <button
+                              onClick={() => openPaymentModal(job, 'deposit')}
+                              className="payment-action-btn"
+                              title="Record Deposit"
+                            >
+                              <FiDollarSign /> Deposit
+                            </button>
+                          )}
+                          {job.payment_status !== 'Paid' && job.deposit_status === 'Received' && (
+                            <button
+                              onClick={() => openPaymentModal(job, 'final')}
+                              className="payment-action-btn"
+                              title="Record Final Payment"
+                            >
+                              <FiDollarSign /> Final
+                            </button>
+                          )}
+                        </div>
+                      ) : null}
                     </div>
                   </td>
                   <td>
-                    <select
-                      value={job.machine_id || ''}
-                      onChange={(e) => handleMachineAssign(job.id, e.target.value, job)}
-                      className="machine-assign-select"
-                      title="Assign machine"
-                    >
-                      <option value="">Not Assigned</option>
-                      {machines.map((machine) => {
-                        const isCompatible = !job.substrate || 
-                          !machine.compatibility || 
-                          machine.compatibility.length === 0 || 
-                          machine.compatibility.includes(job.substrate);
-                        
-                        return (
-                          <option 
-                            key={machine.id} 
-                            value={machine.id}
-                            style={!isCompatible ? { color: '#ef4444' } : {}}
-                          >
-                            {machine.name} ({machine.type})
-                            {!isCompatible ? ' ⚠️ Incompatible' : ''}
-                          </option>
-                        );
-                      })}
-                    </select>
+                    {workerMode ? (
+                      <span className="text-secondary">
+                        {job.machine_name ? `${job.machine_name} (${job.machine_type || ''})` : '—'}
+                      </span>
+                    ) : (
+                      <select
+                        value={job.machine_id || ''}
+                        onChange={(e) => handleMachineAssign(job.id, e.target.value, job)}
+                        className="machine-assign-select"
+                        title="Assign machine"
+                      >
+                        <option value="">Not Assigned</option>
+                        {machines.map((machine) => {
+                          const isCompatible =
+                            !job.substrate ||
+                            !machine.compatibility ||
+                            machine.compatibility.length === 0 ||
+                            machine.compatibility.includes(job.substrate);
+
+                          return (
+                            <option
+                              key={machine.id}
+                              value={machine.id}
+                              style={!isCompatible ? { color: '#ef4444' } : {}}
+                            >
+                              {machine.name} ({machine.type})
+                              {!isCompatible ? ' ⚠️ Incompatible' : ''}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    )}
                   </td>
                   <td>
                     <div className="action-buttons">
-                      <Link
-                        to={`/jobs/edit/${job.id}`}
-                        className="btn-icon"
-                        title="Edit"
-                      >
-                        <FiEdit />
-                      </Link>
-                      <button
-                        onClick={() => handleDuplicate(job.id)}
-                        className="btn-icon"
-                        title="Duplicate"
-                        style={{ color: '#3b82f6' }}
-                      >
-                        <FiCopy />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(job.id)}
-                        className="btn-icon btn-danger"
-                        title="Delete"
-                      >
-                        <FiTrash2 />
-                      </button>
+                      {workerMode ? (
+                        <Link to={`/worker/jobs/${job.id}`} className="btn-icon" title="View job">
+                          <FiEye />
+                        </Link>
+                      ) : (
+                        <>
+                          <Link to={`/jobs/edit/${job.id}`} className="btn-icon" title="Edit">
+                            <FiEdit />
+                          </Link>
+                          <button
+                            onClick={() => handleDuplicate(job.id)}
+                            className="btn-icon"
+                            title="Duplicate"
+                            style={{ color: '#3b82f6' }}
+                          >
+                            <FiCopy />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(job.id)}
+                            className="btn-icon btn-danger"
+                            title="Delete"
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
               </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>
       </div>
 
       {/* Payment Modal */}
-      {paymentModal.show && paymentModal.job && (
+      {!workerMode && paymentModal.show && paymentModal.job && (
         <div className="modal-overlay" onClick={() => setPaymentModal({ show: false, job: null, type: null })}>
           <motion.div
             className="modal-content"

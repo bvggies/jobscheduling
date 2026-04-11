@@ -4,9 +4,12 @@
   left: 0;
   right: 0;
   height: 70px;
-  background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 8px 32px -8px rgba(15, 23, 42, 0.1);
 }
 
 .navbar-container {
@@ -32,15 +35,25 @@
 }
 
 .navbar-title {
-  font-size: 1.5rem;
+  font-family: var(--font-display), var(--font-sans);
+  font-size: 1.35rem;
   font-weight: 700;
-  color: var(--primary-color);
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #0d9488 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
+}
+
+.navbar-search-form {
+  margin: 0;
 }
 
 .navbar-search {
@@ -57,17 +70,19 @@
 }
 
 .search-input {
-  padding: 0.75rem 1rem 0.75rem 3rem;
-  border: 2px solid var(--border-color);
-  border-radius: 0.5rem;
-  font-size: 1rem;
+  padding: 0.65rem 1rem 0.65rem 3rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0.65rem;
+  font-size: 0.95rem;
   width: 300px;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: rgba(248, 250, 252, 0.9);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .navbar-icon-btn {
@@ -75,20 +90,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--light-color);
+  width: 42px;
+  height: 42px;
+  border-radius: 0.65rem;
+  background: rgba(15, 23, 42, 0.06);
   color: var(--text-primary);
   text-decoration: none;
-  font-size: 1.25rem;
-  transition: all 0.3s ease;
+  font-size: 1.2rem;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .navbar-icon-btn:hover {
-  background: var(--primary-color);
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
   color: white;
-  transform: scale(1.1);
+  transform: translateY(-1px);
 }
 
 .navbar-icon-btn .badge {

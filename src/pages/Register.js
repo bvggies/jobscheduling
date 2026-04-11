@@ -34,10 +34,13 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <motion.div className="auth-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+      <div className="auth-page-bg" aria-hidden />
+      <div className="auth-page-scrim" aria-hidden />
+      <div className="auth-page-vignette" aria-hidden />
+      <motion.div className="auth-card" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
         <div className="auth-logo">
           <img src="/logo.svg" alt="" />
-          <span style={{ fontWeight: 700 }}>JobScheduler</span>
+          <span className="auth-brand-name">JobScheduler</span>
         </div>
         <h1>Create customer account</h1>
         <p className="auth-sub">Submit jobs and message the shop. Admin accounts are created separately.</p>

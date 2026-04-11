@@ -83,9 +83,17 @@ function requireCustomer(req, res, next) {
   next();
 }
 
+function requireAdminOrWorker(req, res, next) {
+  if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'worker')) {
+    return res.status(403).json({ error: 'Shop floor or admin access required' });
+  }
+  next();
+}
+
 module.exports = {
   signToken,
   requireAuth,
   requireAdmin,
   requireCustomer,
+  requireAdminOrWorker,
 };

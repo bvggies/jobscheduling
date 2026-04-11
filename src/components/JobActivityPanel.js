@@ -7,6 +7,7 @@ import './JobActivityPanel.css';
 const kindLabel = {
   created: 'Created',
   assignment: 'Assignment',
+  worker_assignment: 'Crew',
   status_change: 'Status',
   schedule: 'Schedule',
   payment: 'Payment',
@@ -14,7 +15,15 @@ const kindLabel = {
   comment: 'Message',
 };
 
-export default function JobActivityPanel({ jobId, canComment, pollMs = 0 }) {
+export default function JobActivityPanel({
+  jobId,
+  canComment,
+  pollMs = 0,
+  introTitle = 'Progress & updates',
+  introText,
+  composeLabel = 'Add an update',
+  submitButtonLabel = 'Post update',
+}) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -61,16 +70,18 @@ export default function JobActivityPanel({ jobId, canComment, pollMs = 0 }) {
     <div className="job-activity-panel">
       <div className="job-activity-header">
         <h2>
-          <FiMessageCircle /> Progress &amp; updates
+          <FiMessageCircle /> {introTitle}
         </h2>
         <button type="button" className="btn btn-outline btn-sm" onClick={load} disabled={loading}>
           <FiRefreshCw /> Refresh
         </button>
       </div>
       <p className="job-activity-intro">
-        {canComment
-          ? 'Everyone on this job sees this timeline. Post notes or questions here.'
-          : 'Timeline of changes for this job.'}
+        {introText
+          ? introText
+          : canComment
+            ? 'Everyone on this job sees this timeline. Post notes or questions here.'
+            : 'Timeline of changes for this job.'}
       </p>
 
       {loading && items.length === 0 ? (
@@ -99,7 +110,7 @@ export default function JobActivityPanel({ jobId, canComment, pollMs = 0 }) {
       {canComment ? (
         <form className="job-activity-compose" onSubmit={submitComment}>
           <label className="form-label" htmlFor={`job-act-${jobId}`}>
-            Add an update
+            {composeLabel}
           </label>
           <textarea
             id={`job-act-${jobId}`}
@@ -110,7 +121,7 @@ export default function JobActivityPanel({ jobId, canComment, pollMs = 0 }) {
             placeholder="Describe progress, ask a question, or share files received…"
           />
           <button type="submit" className="btn btn-primary" disabled={sending}>
-            {sending ? 'Sending…' : 'Post update'}
+            {sending ? 'Sending…' : submitButtonLabel}
           </button>
         </form>
       ) : null}

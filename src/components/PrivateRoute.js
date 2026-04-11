@@ -19,7 +19,8 @@ export function PrivateRoute({ allowedRoles }) {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    const fallback = user.role === 'admin' ? '/dashboard' : '/portal';
+    const fallback =
+      user.role === 'admin' ? '/dashboard' : user.role === 'worker' ? '/worker' : '/portal';
     return <Navigate to={fallback} replace />;
   }
 

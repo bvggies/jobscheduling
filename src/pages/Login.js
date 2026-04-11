@@ -13,7 +13,9 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   if (authReady && user) {
-    return <Navigate to={user.role === 'admin' ? '/dashboard' : '/portal'} replace />;
+    const home =
+      user.role === 'admin' ? '/dashboard' : user.role === 'worker' ? '/worker' : '/portal';
+    return <Navigate to={home} replace />;
   }
 
   const handleSubmit = async (e) => {
@@ -22,7 +24,8 @@ export default function Login() {
     setLoading(true);
     try {
       const u = await login(email, password);
-      navigate(u.role === 'admin' ? '/dashboard' : '/portal', { replace: true });
+      const home = u.role === 'admin' ? '/dashboard' : u.role === 'worker' ? '/worker' : '/portal';
+      navigate(home, { replace: true });
     } catch (err) {
       const msg = err.response?.data?.error || 'Unable to sign in.';
       setError(msg);
@@ -33,13 +36,16 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <motion.div className="auth-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+      <div className="auth-page-bg" aria-hidden />
+      <div className="auth-page-scrim" aria-hidden />
+      <div className="auth-page-vignette" aria-hidden />
+      <motion.div className="auth-card" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
         <div className="auth-logo">
           <img src="/logo.svg" alt="" />
-          <span style={{ fontWeight: 700 }}>JobScheduler</span>
+          <span className="auth-brand-name">JobScheduler</span>
         </div>
         <h1>Sign in</h1>
-        <p className="auth-sub">Use your admin or customer account.</p>
+        <p className="auth-sub">Sign in with your admin, customer, or worker account.</p>
         {error ? <div className="auth-error">{error}</div> : null}
         <form onSubmit={handleSubmit}>
           <div className="form-group">

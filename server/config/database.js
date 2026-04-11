@@ -70,12 +70,27 @@ const initializeDatabase = async () => {
         id SERIAL PRIMARY KEY,
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
-        role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'customer')),
+        role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'customer', 'worker')),
         name VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    try {
+      await pool.query(`ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check`);
+    } catch (e) {
+      /* ignore */
+    }
+    try {
+      await pool.query(
+        `ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('admin', 'customer', 'worker'))`
+      );
+    } catch (e) {
+      if (!String(e.message).includes('already exists')) {
+        console.warn('users_role_check migration note:', e.message);
+      }
+    }
 
     // Create jobs table
     await pool.query(`
@@ -117,6 +132,18 @@ const initializeDatabase = async () => {
           WHERE table_name = 'jobs' AND column_name = 'user_id'
         ) THEN
           ALTER TABLE jobs ADD COLUMN user_id INTEGER REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+      END $$;
+    `);
+
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'jobs' AND column_name = 'assigned_worker_id'
+        ) THEN
+          ALTER TABLE jobs ADD COLUMN assigned_worker_id INTEGER REFERENCES users(id) ON DELETE SET NULL;
         END IF;
       END $$;
     `);
@@ -164,6 +191,18 @@ const initializeDatabase = async () => {
       )
     `);
 
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'alerts' AND column_name = 'recipient_user_id'
+        ) THEN
+          ALTER TABLE alerts ADD COLUMN recipient_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
+        END IF;
+      END $$;
+    `);
+
     // Add due_time column if it doesn't exist (for existing databases)
     try {
       await pool.query(`
@@ -188,7 +227,9 @@ const initializeDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_jobs_machine_id ON jobs(machine_id);
       CREATE INDEX IF NOT EXISTS idx_jobs_customer_name ON jobs(customer_name);
       CREATE INDEX IF NOT EXISTS idx_jobs_user_id ON jobs(user_id);
+      CREATE INDEX IF NOT EXISTS idx_jobs_assigned_worker_id ON jobs(assigned_worker_id);
       CREATE INDEX IF NOT EXISTS idx_alerts_read ON alerts(read);
+      CREATE INDEX IF NOT EXISTS idx_alerts_recipient_user_id ON alerts(recipient_user_id);
       CREATE INDEX IF NOT EXISTS idx_feedback_user_id ON feedback(user_id);
       CREATE INDEX IF NOT EXISTS idx_job_updates_job_id ON job_updates(job_id);
       CREATE INDEX IF NOT EXISTS idx_job_updates_created ON job_updates(created_at DESC);

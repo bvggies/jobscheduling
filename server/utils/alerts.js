@@ -1,12 +1,19 @@
 const db = require('../config/database');
 
-// Create an alert
-const createAlert = async (type, message, jobId = null, machineId = null, severity = 'info') => {
+// Create an alert. recipientUserId: when set, only that user should see this row (e.g. production lead).
+const createAlert = async (
+  type,
+  message,
+  jobId = null,
+  machineId = null,
+  severity = 'info',
+  recipientUserId = null
+) => {
   try {
     await db.query(
-      `INSERT INTO alerts (type, message, job_id, machine_id, severity)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [type, message, jobId, machineId, severity]
+      `INSERT INTO alerts (type, message, job_id, machine_id, severity, recipient_user_id)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [type, message, jobId, machineId, severity, recipientUserId]
     );
   } catch (error) {
     console.error('Error creating alert:', error);

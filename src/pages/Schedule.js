@@ -5,7 +5,7 @@ import { format, parseISO } from 'date-fns';
 import { FiRefreshCw, FiCalendar, FiClock } from 'react-icons/fi';
 import './Schedule.css';
 
-const Schedule = () => {
+const Schedule = ({ workerView = false }) => {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
   const [autoScheduling, setAutoScheduling] = useState(false);
@@ -71,13 +71,15 @@ const Schedule = () => {
           <h1>Schedule</h1>
           <p>View and manage job schedules</p>
         </div>
-        <button
-          onClick={handleAutoSchedule}
-          className="btn btn-primary"
-          disabled={autoScheduling}
-        >
-          <FiRefreshCw /> {autoScheduling ? 'Scheduling...' : 'Auto-Schedule'}
-        </button>
+        {!workerView ? (
+          <button
+            onClick={handleAutoSchedule}
+            className="btn btn-primary"
+            disabled={autoScheduling}
+          >
+            <FiRefreshCw /> {autoScheduling ? 'Scheduling...' : 'Auto-Schedule'}
+          </button>
+        ) : null}
       </div>
 
       {Object.keys(scheduleByMachine).length === 0 ? (
@@ -85,13 +87,15 @@ const Schedule = () => {
           <div className="empty-state">
             <FiCalendar className="empty-state-icon" />
             <p>No jobs scheduled</p>
-            <button
-              onClick={handleAutoSchedule}
-              className="btn btn-primary btn-sm mt-2"
-              disabled={autoScheduling}
-            >
-              Auto-Schedule Jobs
-            </button>
+            {!workerView ? (
+              <button
+                onClick={handleAutoSchedule}
+                className="btn btn-primary btn-sm mt-2"
+                disabled={autoScheduling}
+              >
+                Auto-Schedule Jobs
+              </button>
+            ) : null}
           </div>
         </div>
       ) : (

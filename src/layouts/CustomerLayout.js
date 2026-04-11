@@ -13,7 +13,7 @@ export default function CustomerLayout() {
       <motion.header className="customer-topbar" initial={{ y: -12 }} animate={{ y: 0 }}>
         <Link to="/portal" className="customer-brand">
           <img src="/logo.svg" alt="" className="customer-brand-logo" />
-          <span>JobScheduler</span>
+          <span className="customer-brand-text">JobScheduler</span>
         </Link>
         <nav className="customer-nav">
           <NavLink to="/portal" end className={({ isActive }) => `customer-nav-link ${isActive ? 'active' : ''}`}>
