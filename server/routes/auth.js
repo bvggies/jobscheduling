@@ -30,7 +30,10 @@ router.post('/register', async (req, res) => {
       token = signToken(user);
     } catch (e) {
       console.error(e);
-      return res.status(500).json({ error: 'Server configuration error' });
+      return res.status(500).json({
+        error: 'Server configuration error',
+        details: e.message,
+      });
     }
     res.status(201).json({ token, user });
   } catch (error) {
@@ -64,7 +67,10 @@ router.post('/login', async (req, res) => {
       token = signToken(user);
     } catch (e) {
       console.error(e);
-      return res.status(500).json({ error: 'Server configuration error' });
+      return res.status(500).json({
+        error: 'Server configuration error',
+        details: e.message,
+      });
     }
     res.json({ token, user });
   } catch (error) {

@@ -1,12 +1,35 @@
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
-const getJwtSecret = () =>
-  process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? null : 'dev-jwt-secret-change-me');
+let loggedJwtFallback = false;
+
+/**
+ * Prefer JWT_SECRET. In production without it, derive a stable key from DATABASE_URL
+ * so Vercel/Neon deploys work without an extra env var (set JWT_SECRET for best practice).
+ */
+function getJwtSecret() {
+  const explicit = process.env.JWT_SECRET?.trim();
+  if (explicit) return explicit;
+  if (process.env.NODE_ENV !== 'production') {
+    return 'dev-jwt-secret-change-me';
+  }
+  const dbUrl = process.env.DATABASE_URL?.trim();
+  if (!dbUrl) {
+    return null;
+  }
+  if (!loggedJwtFallback) {
+    loggedJwtFallback = true;
+    console.warn(
+      '[auth] JWT_SECRET is not set; using a key derived from DATABASE_URL. Add JWT_SECRET in Vercel env for clearer rotation and portability.'
+    );
+  }
+  return crypto.createHash('sha256').update(`jobscheduler-jwt-v1:${dbUrl}`).digest('hex');
+}
 
 function signToken(user) {
   const secret = getJwtSecret();
   if (!secret) {
-    throw new Error('JWT_SECRET is required in production');
+    throw new Error('Set JWT_SECRET or DATABASE_URL in the server environment to enable login.');
   }
   return jwt.sign(
     {
@@ -27,7 +50,10 @@ function requireAuth(req, res, next) {
   }
   const secret = getJwtSecret();
   if (!secret) {
-    return res.status(500).json({ error: 'Server misconfiguration' });
+    return res.status(500).json({
+      error: 'Server misconfiguration',
+      details: 'Set JWT_SECRET or DATABASE_URL for the API.',
+    });
   }
   try {
     const payload = jwt.verify(header.slice(7), secret);
