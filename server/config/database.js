@@ -239,6 +239,48 @@ const initializeDatabase = async () => {
       }
     }
 
+    const adminCountResult = await pool.query(
+      `SELECT COUNT(*)::int AS n FROM users WHERE role = 'admin'`
+    );
+    if (adminCountResult.rows[0].n === 0) {
+      const bootstrapEmail = (
+        process.env.INITIAL_ADMIN_EMAIL || 'admin@jobscheduler.local'
+      )
+        .trim()
+        .toLowerCase();
+      const bootstrapPassword =
+        process.env.INITIAL_ADMIN_PASSWORD || 'JobScheduler2026!';
+      const bootstrapName = process.env.INITIAL_ADMIN_NAME?.trim() || 'Administrator';
+      if (bootstrapPassword.length < 8) {
+        console.error(
+          'No admin users exist and INITIAL_ADMIN_PASSWORD is too short. Set INITIAL_ADMIN_EMAIL and INITIAL_ADMIN_PASSWORD (8+ chars) in environment.'
+        );
+      } else {
+        const taken = await pool.query('SELECT id, role FROM users WHERE email = $1', [
+          bootstrapEmail,
+        ]);
+        if (taken.rows.length > 0) {
+          console.error(
+            `Cannot bootstrap admin: ${bootstrapEmail} is already registered as ${taken.rows[0].role}. Set INITIAL_ADMIN_EMAIL to an unused address.`
+          );
+        } else {
+          const hash = await bcrypt.hash(bootstrapPassword, 10);
+          await pool.query(
+            `INSERT INTO users (email, password_hash, role, name) VALUES ($1, $2, 'admin', $3)`,
+            [bootstrapEmail, hash, bootstrapName]
+          );
+          const usedDefaults =
+            !process.env.INITIAL_ADMIN_EMAIL && !process.env.INITIAL_ADMIN_PASSWORD;
+          console.warn(
+            `Bootstrap: created first admin login — email: ${bootstrapEmail}` +
+              (usedDefaults
+                ? ' (default password; set INITIAL_ADMIN_EMAIL / INITIAL_ADMIN_PASSWORD in env, then change password after sign-in)'
+                : '')
+          );
+        }
+      }
+    }
+
     console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Error initializing database:', error);

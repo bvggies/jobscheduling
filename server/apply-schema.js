@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
  * Applies schema from initializeDatabase() (this project has no separate SQL migrations).
+ * If no admin users exist, creates one (INITIAL_ADMIN_* env or defaults — see server/config/database.js).
  * Usage: DATABASE_URL="postgresql://..." node apply-schema.js
  */
 require('dotenv').config();
