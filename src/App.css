@@ -43,20 +43,27 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .app-container {
   display: flex;
   flex: 1;
   margin-top: 70px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .main-content {
   flex: 1;
-  padding: 2rem 2.25rem 2.5rem;
+  padding: 2rem clamp(0.75rem, 3vw, 2.25rem) 2.5rem;
   margin-left: 256px;
   transition: margin-left 0.3s ease;
   min-height: calc(100vh - 70px);
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Shared page titles (Jobs, Schedule, Analytics, etc.) */
@@ -64,10 +71,14 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
   margin-bottom: 2rem;
   padding-bottom: 1.35rem;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   position: relative;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .page-header::after {
@@ -182,6 +193,9 @@ body {
   margin-bottom: 1.5rem;
   transition: box-shadow 0.25s ease, transform 0.25s ease;
   border: 1px solid rgba(15, 23, 42, 0.06);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .card:hover {
@@ -192,6 +206,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--border-color);

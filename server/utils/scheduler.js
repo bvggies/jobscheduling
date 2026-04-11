@@ -187,9 +187,55 @@ const scheduleJobs = async () => {
   }
 };
 
+/**
+ * Next start/end on a machine for a job (same rules as auto-scheduler), excluding excludeJobId from machine load.
+ * Returns { start: Date, end: Date }.
+ */
+async function computeSlotForJob(job, machineId, excludeJobId) {
+  const currentSchedule = await db.query(
+    `
+    SELECT scheduled_end
+    FROM jobs
+    WHERE machine_id = $1
+    AND status != 'Completed'
+    AND scheduled_end IS NOT NULL
+    AND id != $2
+    ORDER BY scheduled_end DESC
+    LIMIT 1
+  `,
+    [machineId, excludeJobId]
+  );
+
+  const duration = estimateJobDuration(job.quantity, job.product_type || '');
+  let startTime;
+
+  if (currentSchedule.rows.length > 0) {
+    startTime = new Date(currentSchedule.rows[0].scheduled_end);
+    const now = new Date();
+    if (startTime < now) {
+      startTime = new Date();
+      startTime.setHours(8, 0, 0, 0);
+      if (startTime < now) {
+        startTime = now;
+      }
+    }
+  } else {
+    startTime = new Date();
+    startTime.setHours(8, 0, 0, 0);
+    const now = new Date();
+    if (startTime < now) {
+      startTime = now;
+    }
+  }
+
+  const endTime = new Date(startTime.getTime() + duration * 60 * 60 * 1000);
+  return { start: startTime, end: endTime };
+}
+
 module.exports = {
   scheduleJobs,
   estimateJobDuration,
   isCompatible,
+  computeSlotForJob,
 };
 

@@ -1,9 +1,29 @@
 const express = require('express');
+const { randomBytes } = require('crypto');
 const router = express.Router();
 const db = require('../config/database');
 const { createAlert } = require('../utils/alerts');
 const { requireAuth, requireAdmin, requireAdminOrWorker } = require('../middleware/auth');
 const { insertJobUpdate, logJobFieldChanges } = require('../utils/jobUpdates');
+
+/** PO-YYYYMMDD-XXXXXXXX (8 hex) — collision-checked before insert */
+function buildPoCandidate() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const suffix = randomBytes(4).toString('hex').toUpperCase();
+  return `PO-${y}${m}${day}-${suffix}`;
+}
+
+async function allocateUniquePoNumber() {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const candidate = buildPoCandidate();
+    const dup = await db.query(`SELECT 1 FROM jobs WHERE po_number = $1`, [candidate]);
+    if (dup.rows.length === 0) return candidate;
+  }
+  throw new Error('Could not allocate unique PO number');
+}
 
 async function loadJobRow(jobId) {
   const result = await db.query(`SELECT * FROM jobs WHERE id = $1`, [jobId]);
@@ -225,7 +245,6 @@ router.post('/', requireAuth, async (req, res) => {
     }
     const {
       job_name,
-      po_number,
       customer_name,
       product_type,
       quantity,
@@ -239,6 +258,8 @@ router.post('/', requireAuth, async (req, res) => {
       user_id: bodyUserId,
       assigned_worker_id: bodyAssignedWorkerId,
     } = req.body;
+
+    const poNumber = await allocateUniquePoNumber();
 
     const resolvedCustomerName =
       req.user.role === 'customer' ? req.user.name : customer_name;
@@ -277,7 +298,7 @@ router.post('/', requireAuth, async (req, res) => {
       RETURNING *`,
       [
         job_name,
-        po_number || null,
+        poNumber,
         resolvedCustomerName,
         product_type,
         parseInt(quantity, 10),
@@ -554,6 +575,7 @@ router.post('/:id/duplicate', requireAuth, requireAdmin, async (req, res) => {
     }
 
     const job = originalJob.rows[0];
+    const duplicatePo = await allocateUniquePoNumber();
 
     const result = await db.query(
       `INSERT INTO jobs (
@@ -564,7 +586,7 @@ router.post('/:id/duplicate', requireAuth, requireAdmin, async (req, res) => {
       RETURNING *`,
       [
         `${job.job_name} (Copy)`,
-        job.po_number,
+        duplicatePo,
         job.customer_name,
         job.product_type,
         job.quantity,

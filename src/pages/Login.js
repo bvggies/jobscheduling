@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import AuthPageChrome from '../components/AuthPageChrome';
 import './Auth.css';
 
 export default function Login() {
@@ -35,10 +36,7 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-page-bg" aria-hidden />
-      <div className="auth-page-scrim" aria-hidden />
-      <div className="auth-page-vignette" aria-hidden />
+    <AuthPageChrome>
       <motion.div className="auth-card" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
         <div className="auth-logo">
           <img src="/logo.svg" alt="" />
@@ -84,6 +82,6 @@ export default function Login() {
           New customer? <Link to="/register">Create an account</Link>
         </div>
       </motion.div>
-    </div>
+    </AuthPageChrome>
   );
 }

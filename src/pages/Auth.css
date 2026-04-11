@@ -13,15 +13,21 @@
 .auth-page-bg {
   position: absolute;
   inset: 0;
-  background: center / cover no-repeat url('../assets/auth-hero.svg');
-  opacity: 0.42;
-  transform: scale(1.08);
+  z-index: 0;
+  /* background-image set inline (import) so asset URL is correct for any homepage / PUBLIC_URL */
+  background-color: #0c1222;
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0.52;
+  transform: scale(1.06);
   pointer-events: none;
 }
 
 .auth-page-scrim {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(
     165deg,
     rgba(8, 12, 24, 0.88) 0%,
@@ -34,6 +40,7 @@
 .auth-page-vignette {
   position: absolute;
   inset: 0;
+  z-index: 2;
   background: radial-gradient(ellipse 80% 70% at 50% 50%, transparent 0%, rgba(4, 8, 18, 0.55) 100%);
   pointer-events: none;
 }

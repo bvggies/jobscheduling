@@ -1,3 +1,4 @@
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -10,23 +11,28 @@ const authRoutes = require('./routes/auth');
 const feedbackRoutes = require('./routes/feedback');
 const usersRoutes = require('./routes/users');
 const activityRoutes = require('./routes/activity');
+const chatRoutes = require('./routes/chat');
 const db = require('./config/database');
+const { attachChatSocket } = require('./chatSocket');
 
 dotenv.config();
 
 const app = express();
 
-// CORS configuration - allow all origins in production (Vercel handles this)
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? true // Allow all origins in production (Vercel)
-    : ['http://localhost:3000', 'http://127.0.0.1:3000'],
-  credentials: true
-}));
+const corsOrigins =
+  process.env.NODE_ENV === 'production'
+    ? true
+    : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+
+app.use(
+  cors({
+    origin: corsOrigins,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
-// Database connection - initialize on first request
 let dbInitialized = false;
 const initializeDb = async () => {
   if (!dbInitialized) {
@@ -35,13 +41,11 @@ const initializeDb = async () => {
   }
 };
 
-// Middleware to ensure DB is initialized
 app.use(async (req, res, next) => {
   await initializeDb();
   next();
 });
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/users', usersRoutes);
@@ -51,21 +55,21 @@ app.use('/api/machines', machinesRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/alerts', alertsRoutes);
+app.use('/api/chat', chatRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Job Scheduling API is running' });
 });
 
-// For Vercel serverless functions
 module.exports = app;
 
-// For local development
 if (require.main === module) {
   const PORT = process.env.PORT || 5000;
   db.connect().then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+    const httpServer = http.createServer(app);
+    attachChatSocket(httpServer, corsOrigins);
+    httpServer.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT} (HTTP + Socket.IO)`);
     });
   });
 }
-

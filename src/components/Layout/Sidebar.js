@@ -12,6 +12,7 @@ import {
   FiMessageSquare,
   FiActivity,
   FiUsers,
+  FiMessageCircle,
 } from 'react-icons/fi';
 import './Sidebar.css';
 
@@ -25,6 +26,7 @@ const Sidebar = () => {
     { path: '/schedule', icon: FiCalendar, label: 'Schedule' },
     { path: '/analytics', icon: FiBarChart2, label: 'Analytics' },
     { path: '/alerts', icon: FiAlertCircle, label: 'Alerts' },
+    { path: '/chat', icon: FiMessageCircle, label: 'Live chat' },
     { path: '/feedback', icon: FiMessageSquare, label: 'Feedback' },
     { path: '/activity', icon: FiActivity, label: 'Work activity' },
     { path: '/team', icon: FiUsers, label: 'Team' },

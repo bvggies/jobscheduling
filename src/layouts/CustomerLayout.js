@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiHome, FiBriefcase, FiMessageSquare, FiLogOut, FiPlus } from 'react-icons/fi';
+import { FiHome, FiBriefcase, FiMessageSquare, FiLogOut, FiPlus, FiMessageCircle } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import './CustomerLayout.css';
 
@@ -31,6 +31,12 @@ export default function CustomerLayout() {
             className={({ isActive }) => `customer-nav-link ${isActive ? 'active' : ''}`}
           >
             <FiPlus /> New job
+          </NavLink>
+          <NavLink
+            to="/portal/chat"
+            className={({ isActive }) => `customer-nav-link ${isActive ? 'active' : ''}`}
+          >
+            <FiMessageCircle /> Live chat
           </NavLink>
           <NavLink
             to="/portal/feedback"

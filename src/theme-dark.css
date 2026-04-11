@@ -1,5 +1,16 @@
 /* Dark theme — toggled via data-theme="dark" on <html> */
 
+html[data-theme='dark'] {
+  --surface-elevated: #1e293b;
+  --light-color: #334155;
+  --border-color: rgba(148, 163, 184, 0.18);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 4px 16px -4px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.28), 0 20px 40px -12px rgba(0, 0, 0, 0.45);
+  --shadow-premium: 0 24px 48px -12px rgba(0, 0, 0, 0.55);
+}
+
 [data-theme='dark'] body {
   background-color: #0b1120;
   background-image:
@@ -164,4 +175,297 @@
 [data-theme='dark'] .sidebar-item.active {
   background: rgba(37, 99, 235, 0.22);
   color: #fff;
+}
+
+/* Page chrome & borders still using light rgba() in base CSS */
+[data-theme='dark'] .page-header,
+[data-theme='dark'] .dashboard-header {
+  border-bottom-color: rgba(148, 163, 184, 0.14);
+}
+
+[data-theme='dark'] .customer-page-header {
+  border-bottom-color: rgba(148, 163, 184, 0.14);
+}
+
+[data-theme='dark'] .machine-schedule {
+  background: #1e293b;
+  border-color: rgba(148, 163, 184, 0.12);
+}
+
+[data-theme='dark'] .schedule-item {
+  border-color: rgba(148, 163, 184, 0.14);
+}
+
+[data-theme='dark'] .schedule-item:hover {
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+[data-theme='dark'] .schedule-item-time {
+  background: rgba(15, 23, 42, 0.55);
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .schedule-assign-row {
+  border-top-color: rgba(148, 163, 184, 0.14);
+}
+
+[data-theme='dark'] .recent-job-item {
+  border-color: rgba(148, 163, 184, 0.14);
+  color: #f1f5f9;
+}
+
+[data-theme='dark'] .recent-job-item:hover {
+  background: rgba(51, 65, 85, 0.45);
+}
+
+/* Jobs page: autocomplete, modals, table controls */
+[data-theme='dark'] .autocomplete-dropdown {
+  background: #1e293b;
+  border-color: rgba(148, 163, 184, 0.2);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme='dark'] .autocomplete-item {
+  border-bottom-color: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .autocomplete-item:hover {
+  background: rgba(51, 65, 85, 0.75);
+}
+
+[data-theme='dark'] .modal-content {
+  background: #1e293b;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .modal-header h3 {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .modal-close:hover {
+  background: rgba(51, 65, 85, 0.8);
+  color: #f1f5f9;
+}
+
+[data-theme='dark'] .status-select,
+[data-theme='dark'] .machine-assign-select {
+  background: #0f172a;
+  border-color: rgba(148, 163, 184, 0.22);
+  color: #f1f5f9;
+}
+
+[data-theme='dark'] .payment-action-btn {
+  background: transparent;
+}
+
+[data-theme='dark'] .job-activity-item {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: rgba(148, 163, 184, 0.14);
+}
+
+[data-theme='dark'] .job-activity-body {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .job-payment {
+  background: #1e293b;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+[data-theme='dark'] .job-form {
+  background: #1e293b;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+[data-theme='dark'] .checkbox-label {
+  background: rgba(15, 23, 42, 0.35);
+}
+
+[data-theme='dark'] .checkbox-label:hover {
+  background: rgba(51, 65, 85, 0.55);
+}
+
+[data-theme='dark'] .machine-form {
+  background: #1e293b;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+[data-theme='dark'] .machine-card {
+  background: #1e293b;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+[data-theme='dark'] .machine-info h3 {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .tag {
+  background: rgba(51, 65, 85, 0.85);
+  color: #e2e8f0;
+}
+
+/* Alerts */
+[data-theme='dark'] .filter-btn {
+  background: #0f172a;
+  border-color: rgba(148, 163, 184, 0.22);
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .filter-btn:hover {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .alert-item {
+  background: #1e293b;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .alert-message {
+  color: #e2e8f0;
+}
+
+/* Customer / worker portal panels */
+[data-theme='dark'] .customer-tile {
+  background: rgba(30, 41, 59, 0.92);
+  border-color: rgba(148, 163, 184, 0.12);
+}
+
+[data-theme='dark'] .customer-tile h2 {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .customer-info-panel {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(148, 163, 184, 0.12);
+}
+
+[data-theme='dark'] .customer-info-panel h2,
+[data-theme='dark'] .customer-info-panel p {
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .customer-table-wrap {
+  background: #1e293b;
+}
+
+[data-theme='dark'] .customer-table th {
+  background: #0f172a;
+  color: #cbd5e1;
+}
+
+[data-theme='dark'] .customer-table td {
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .customer-feedback-card {
+  background: #1e293b;
+  border-color: rgba(148, 163, 184, 0.12);
+}
+
+[data-theme='dark'] .customer-feedback-card h3 {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .customer-form-panel {
+  background: #1e293b;
+  border-color: rgba(148, 163, 184, 0.12);
+}
+
+[data-theme='dark'] .customer-reply {
+  background: rgba(30, 58, 138, 0.35);
+  border-left-color: #60a5fa;
+}
+
+[data-theme='dark'] .customer-reply strong {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .work-activity-table-wrap {
+  background: #1e293b;
+  border-color: rgba(148, 163, 184, 0.12);
+}
+
+[data-theme='dark'] .work-activity-table th {
+  background: #0f172a;
+  color: #cbd5e1;
+}
+
+[data-theme='dark'] .work-activity-table td {
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .work-activity-badge {
+  background: rgba(79, 70, 229, 0.35);
+  color: #c7d2fe;
+}
+
+/* Misc */
+[data-theme='dark'] .spinner {
+  border-color: rgba(148, 163, 184, 0.2);
+  border-top-color: #60a5fa;
+}
+
+[data-theme='dark'] .empty-state {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .auth-error {
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.45), rgba(153, 27, 27, 0.35));
+  border-color: rgba(248, 113, 113, 0.25);
+  color: #fecaca;
+}
+
+[data-theme='dark'] .performance-metrics .metric-value {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .job-form-inline-error {
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+}
+
+[data-theme='dark'] .customer-nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .customer-nav-link.active {
+  background: rgba(37, 99, 235, 0.22);
+  color: #93c5fd;
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.2);
+}
+
+[data-theme='dark'] .customer-topbar {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 8px 32px -12px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme='dark'] .worker-dash-tile {
+  background: #1e293b;
+  border-color: rgba(148, 163, 184, 0.12);
+}
+
+[data-theme='dark'] .worker-dash-tile h3 {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .chat-page-title {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .chat-bubble--other {
+  background: rgba(51, 65, 85, 0.65);
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+[data-theme='dark'] .chat-textarea,
+[data-theme='dark'] .chat-input,
+[data-theme='dark'] .chat-select {
+  background: rgba(15, 23, 42, 0.6);
+  color: #f1f5f9;
+  border-color: rgba(148, 163, 184, 0.2);
 }

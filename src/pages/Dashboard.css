@@ -1,6 +1,9 @@
 .dashboard {
   max-width: 1400px;
+  width: 100%;
+  min-width: 0;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .dashboard-header {
@@ -24,12 +27,13 @@
 
 .dashboard-header h1 {
   font-family: var(--font-display), var(--font-sans);
-  font-size: 2.25rem;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
   font-weight: 700;
   letter-spacing: -0.04em;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
   line-height: 1.15;
+  word-break: break-word;
 }
 
 .dashboard-header p {
@@ -41,7 +45,7 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   gap: 1.35rem;
   margin-bottom: 2rem;
 }
@@ -58,6 +62,8 @@
   text-decoration: none;
   color: var(--text-primary);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .stat-card:hover {
@@ -76,9 +82,13 @@
   font-size: 1.45rem;
 }
 
+.stat-content {
+  min-width: 0;
+}
+
 .stat-content h3 {
   font-family: var(--font-display), var(--font-sans);
-  font-size: 1.85rem;
+  font-size: clamp(1.35rem, 3.5vw, 1.85rem);
   font-weight: 700;
   letter-spacing: -0.03em;
   margin-bottom: 0.2rem;
@@ -94,6 +104,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
 }
 
 @media (max-width: 1024px) {
@@ -117,7 +129,11 @@
   transition: all 0.3s ease;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .recent-job-item:hover {
@@ -125,10 +141,16 @@
   background: var(--light-color);
 }
 
+.job-info {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
 .job-info h4 {
   font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
+  word-break: break-word;
 }
 
 .job-info p {
@@ -141,6 +163,8 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .job-date {
@@ -168,13 +192,15 @@
 }
 
 .metric-value {
-  font-size: 2rem;
+  font-size: clamp(1.35rem, 4vw, 2rem);
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
+  word-break: break-word;
 }
 
 .metric-desc {
@@ -199,7 +225,7 @@
 
 .revenue-cards-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -213,8 +239,10 @@
 .revenue-card-header {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
   margin-bottom: 1.5rem;
+  min-width: 0;
 }
 
 .revenue-icon {
@@ -231,15 +259,17 @@
 }
 
 .revenue-amount {
-  font-size: 2.5rem;
+  font-size: clamp(1.35rem, 5vw, 2.5rem);
   font-weight: 700;
   color: white;
   margin: 0;
+  word-break: break-word;
 }
 
 .revenue-card-details {
   display: flex;
-  gap: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -272,6 +302,7 @@
   align-items: center;
   gap: 1rem;
   width: 100%;
+  min-width: 0;
 }
 
 .revenue-icon-small {
@@ -287,11 +318,12 @@
 }
 
 .revenue-value {
-  font-size: 1.75rem;
+  font-size: clamp(1.2rem, 4vw, 1.75rem);
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
   line-height: 1.2;
+  word-break: break-word;
 }
 
 .revenue-label {
@@ -302,7 +334,7 @@
 
 @media (max-width: 1024px) {
   .revenue-cards-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

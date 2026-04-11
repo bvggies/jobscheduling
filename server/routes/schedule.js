@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
-const { scheduleJobs } = require('../utils/scheduler');
+const { scheduleJobs, computeSlotForJob } = require('../utils/scheduler');
 const { requireAuth, requireAdmin, requireAdminOrWorker } = require('../middleware/auth');
 const { logJobFieldChanges } = require('../utils/jobUpdates');
 
@@ -27,7 +27,7 @@ router.get('/', requireAdminOrWorker, async (req, res) => {
       params.push(end_date);
     }
 
-    query += ` ORDER BY j.scheduled_start ASC, j.priority DESC`;
+    query += ` ORDER BY j.scheduled_start ASC NULLS LAST, j.due_date ASC, j.priority DESC`;
 
     const result = await db.query(query, params);
     res.json(result.rows);
@@ -50,11 +50,41 @@ router.post('/auto-schedule', requireAdmin, async (req, res) => {
 router.put('/:jobId', requireAdmin, async (req, res) => {
   try {
     const { machine_id, scheduled_start, scheduled_end } = req.body;
+    const mid = machine_id != null && machine_id !== '' ? parseInt(machine_id, 10) : NaN;
+    if (Number.isNaN(mid)) {
+      return res.status(400).json({ error: 'machine_id is required' });
+    }
+
+    const machineOk = await db.query(`SELECT id FROM machines WHERE id = $1`, [mid]);
+    if (machineOk.rows.length === 0) {
+      return res.status(400).json({ error: 'Machine not found' });
+    }
+
     const before = await db.query(`SELECT * FROM jobs WHERE id = $1`, [req.params.jobId]);
     if (before.rows.length === 0) {
       return res.status(404).json({ error: 'Job not found' });
     }
     const existing = before.rows[0];
+
+    let startVal =
+      scheduled_start != null && String(scheduled_start).trim() !== ''
+        ? new Date(scheduled_start)
+        : null;
+    let endVal =
+      scheduled_end != null && String(scheduled_end).trim() !== '' ? new Date(scheduled_end) : null;
+
+    if (
+      !startVal ||
+      !endVal ||
+      Number.isNaN(startVal.getTime()) ||
+      Number.isNaN(endVal.getTime())
+    ) {
+      const slot = await computeSlotForJob(existing, mid, parseInt(req.params.jobId, 10));
+      startVal = slot.start;
+      endVal = slot.end;
+    } else if (endVal <= startVal) {
+      return res.status(400).json({ error: 'scheduled_end must be after scheduled_start' });
+    }
 
     const result = await db.query(
       `UPDATE jobs SET
@@ -64,7 +94,7 @@ router.put('/:jobId', requireAdmin, async (req, res) => {
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $4
       RETURNING *`,
-      [machine_id, scheduled_start, scheduled_end, req.params.jobId]
+      [mid, startVal, endVal, req.params.jobId]
     );
 
     if (result.rows.length === 0) {

@@ -5,6 +5,7 @@ import { isToday, parseISO } from 'date-fns';
 import { FiBriefcase, FiClock, FiCalendar, FiActivity } from 'react-icons/fi';
 import { jobsAPI } from '../../services/api';
 import '../Dashboard.css';
+import './WorkerDashboard.css';
 
 export default function WorkerDashboard() {
   const [jobs, setJobs] = useState([]);
@@ -72,7 +73,7 @@ export default function WorkerDashboard() {
 
   return (
     <motion.div
-      className="dashboard"
+      className="dashboard worker-dashboard"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
@@ -82,7 +83,7 @@ export default function WorkerDashboard() {
         <p>Overview of work in progress and what is due today</p>
       </div>
 
-      <div className="stats-grid">
+      <div className="stats-grid worker-dashboard-stats">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -108,23 +109,35 @@ export default function WorkerDashboard() {
 
       <motion.div
         className="card"
-        style={{ padding: '1.25rem' }}
+        style={{ padding: '1.25rem 1.35rem' }}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <h2 style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem' }}>
+        <h2 className="worker-quick-heading">
           <FiActivity /> Quick links
         </h2>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-          <Link to="/worker/jobs" className="btn btn-primary">
-            All jobs
+        <div className="worker-quick-grid">
+          <Link to="/worker/jobs" className="worker-dash-tile worker-dash-tile-primary">
+            <span className="worker-dash-tile-icon" aria-hidden>
+              <FiBriefcase />
+            </span>
+            <h3>All jobs</h3>
+            <p>Browse and open every job on the floor.</p>
           </Link>
-          <Link to="/worker/schedule" className="btn btn-outline">
-            Schedule
+          <Link to="/worker/schedule" className="worker-dash-tile worker-dash-tile-muted">
+            <span className="worker-dash-tile-icon" aria-hidden>
+              <FiCalendar />
+            </span>
+            <h3>Schedule</h3>
+            <p>See what is on press and when it is due.</p>
           </Link>
-          <Link to="/worker/activity" className="btn btn-outline">
-            Work activity
+          <Link to="/worker/activity" className="worker-dash-tile worker-dash-tile-accent">
+            <span className="worker-dash-tile-icon" aria-hidden>
+              <FiActivity />
+            </span>
+            <h3>Work activity</h3>
+            <p>Review recent updates you and the team posted.</p>
           </Link>
         </div>
       </motion.div>

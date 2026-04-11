@@ -203,6 +203,35 @@ const initializeDatabase = async () => {
       END $$;
     `);
 
+    // Admin / worker / customer direct messaging
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS chat_threads (
+        id SERIAL PRIMARY KEY,
+        user_id_a INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        user_id_b INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT chat_threads_ordered CHECK (user_id_a < user_id_b),
+        CONSTRAINT chat_threads_pair UNIQUE (user_id_a, user_id_b)
+      )
+    `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS chat_thread_reads (
+        thread_id INTEGER NOT NULL REFERENCES chat_threads(id) ON DELETE CASCADE,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        last_read_at TIMESTAMP NOT NULL DEFAULT TIMESTAMP '1970-01-01',
+        PRIMARY KEY (thread_id, user_id)
+      )
+    `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS chat_messages (
+        id SERIAL PRIMARY KEY,
+        thread_id INTEGER NOT NULL REFERENCES chat_threads(id) ON DELETE CASCADE,
+        sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        body TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Add due_time column if it doesn't exist (for existing databases)
     try {
       await pool.query(`
@@ -220,6 +249,62 @@ const initializeDatabase = async () => {
       console.log('Note: due_time column may already exist or could not be added:', error.message);
     }
 
+    /** Default print shop equipment — skipped if a row with the same name already exists */
+    const seedMachines = [
+      {
+        name: 'Heidelberg Speedmaster CD 102',
+        type: 'Offset Press',
+        compatibility: ['100# Gloss', '100# Matte', '100# Uncoated', '80# Gloss', '80# Matte', '80# Uncoated'],
+      },
+      {
+        name: 'Xerox Versant 280',
+        type: 'Digital Press',
+        compatibility: ['100# Gloss', '100# Matte', '80# Gloss', '80# Matte', 'Cardstock', 'Photo Paper'],
+      },
+      {
+        name: 'Roland TrueVIS VG3-540',
+        type: 'Large Format Printer',
+        compatibility: ['Vinyl', 'Banner Material', 'Canvas', 'Photo Paper'],
+      },
+      {
+        name: 'Mimaki UCJV300-160',
+        type: 'UV Printer',
+        compatibility: ['Vinyl', 'Banner Material', 'Canvas', 'Cardstock'],
+      },
+      {
+        name: 'Graphtec FC9000-160',
+        type: 'Cutting Plotter',
+        compatibility: ['Vinyl', 'Banner Material'],
+      },
+      {
+        name: 'Epson SureColor P9570',
+        type: 'Canon Printer',
+        compatibility: ['Photo Paper', 'Canvas', '100# Matte', 'Cardstock'],
+      },
+      {
+        name: 'Geo Knight DK20S',
+        type: 'Heat press',
+        compatibility: ['Vinyl', 'Other'],
+      },
+      {
+        name: 'Roland BN-20D',
+        type: 'DTF Printer',
+        compatibility: ['Vinyl', 'Other'],
+      },
+    ];
+
+    for (const m of seedMachines) {
+      const ins = await pool.query(
+        `INSERT INTO machines (name, type, compatibility)
+         SELECT $1::varchar, $2::varchar, $3::text[]
+         WHERE NOT EXISTS (SELECT 1 FROM machines WHERE name = $1::varchar)`,
+        [m.name, m.type, m.compatibility]
+      );
+      if (ins.rowCount > 0) {
+        console.log(`Seeded machine: ${m.name}`);
+      }
+    }
+
     // Create indexes for better performance
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_jobs_due_date ON jobs(due_date);
@@ -233,6 +318,8 @@ const initializeDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_feedback_user_id ON feedback(user_id);
       CREATE INDEX IF NOT EXISTS idx_job_updates_job_id ON job_updates(job_id);
       CREATE INDEX IF NOT EXISTS idx_job_updates_created ON job_updates(created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_chat_messages_thread ON chat_messages(thread_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_chat_threads_updated ON chat_threads(updated_at DESC);
     `);
 
     const entries = [];
@@ -325,6 +412,7 @@ const initializeDatabase = async () => {
     console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Error initializing database:', error);
+    throw error;
   }
 };
 

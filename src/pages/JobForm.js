@@ -193,6 +193,9 @@ const JobForm = ({ portalMode = false }) => {
         total_cost: parseFloat(formData.total_cost) || 0,
         deposit_required: parseFloat(formData.deposit_required) || 0,
       };
+      if (!isEdit) {
+        delete data.po_number;
+      }
       if (!portalMode && isAdmin) {
         data.user_id = assigned_user_id === '' ? null : parseInt(assigned_user_id, 10);
         data.assigned_worker_id =
@@ -263,14 +266,25 @@ const JobForm = ({ portalMode = false }) => {
               />
             </div>
             <div className="form-group">
-              <label className="form-label">PO Number</label>
-              <input
-                type="text"
-                name="po_number"
-                value={formData.po_number}
-                onChange={handleChange}
-                className="form-control"
-              />
+              <label className="form-label">PO number</label>
+              {isEdit ? (
+                <>
+                  <input
+                    type="text"
+                    name="po_number"
+                    value={formData.po_number || ''}
+                    readOnly
+                    className="form-control"
+                    style={{ cursor: 'default' }}
+                    aria-readonly="true"
+                  />
+                  <small className="form-hint">Assigned when this job was created. Contact an admin if it must be corrected.</small>
+                </>
+              ) : (
+                <p className="form-hint" style={{ marginTop: '0.35rem', marginBottom: 0 }}>
+                  A unique PO number (format <strong>PO-YYYYMMDD-XXXXXXXX</strong>) is generated automatically when you save.
+                </p>
+              )}
             </div>
             <div className="form-group">
               <label className="form-label">Customer Name *</label>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiHome, FiBriefcase, FiCalendar, FiActivity, FiLogOut, FiBell } from 'react-icons/fi';
+import { FiHome, FiBriefcase, FiCalendar, FiActivity, FiLogOut, FiBell, FiMessageCircle } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { alertsAPI } from '../services/api';
 import './CustomerLayout.css';
@@ -58,10 +58,16 @@ export default function WorkerLayout() {
             <FiActivity /> Activity
           </NavLink>
           <NavLink
+            to="/worker/chat"
+            className={({ isActive }) => `customer-nav-link ${isActive ? 'active' : ''}`}
+          >
+            <FiMessageCircle /> Live chat
+          </NavLink>
+          <NavLink
             to="/worker/alerts"
             className={({ isActive }) => `customer-nav-link ${isActive ? 'active' : ''}`}
           >
-            <FiBell /> Messages
+            <FiBell /> Alerts
             {unreadAlerts > 0 ? (
               <span
                 className="badge"

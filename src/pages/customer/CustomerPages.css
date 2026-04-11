@@ -18,12 +18,13 @@
 
 .customer-page-header h1 {
   font-family: var(--font-display), var(--font-sans);
-  font-size: 1.85rem;
+  font-size: clamp(1.35rem, 4vw, 1.85rem);
   font-weight: 700;
   letter-spacing: -0.035em;
   margin-bottom: 0.4rem;
   line-height: 1.2;
   color: var(--text-primary);
+  word-break: break-word;
 }
 
 .customer-page-header p {
@@ -35,7 +36,7 @@
 
 .customer-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
 }
@@ -52,6 +53,8 @@
   color: inherit;
   box-shadow: var(--shadow);
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .customer-tile:hover {

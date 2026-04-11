@@ -1,0 +1,120 @@
+.worker-dashboard {
+  max-width: 960px;
+  width: 100%;
+  min-width: 0;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.worker-quick-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-family: var(--font-display), var(--font-sans);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 1rem;
+}
+
+.worker-dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 640px) {
+  .worker-dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 880px) {
+  .worker-dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.worker-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .worker-quick-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 880px) {
+  .worker-quick-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.worker-dash-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1.25rem min(1.35rem, 4vw);
+  border-radius: 1rem;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface-elevated);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.worker-dash-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+.worker-dash-tile-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+}
+
+.worker-dash-tile h3 {
+  font-family: var(--font-display), var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.worker-dash-tile p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.worker-dash-tile-primary .worker-dash-tile-icon {
+  background: rgba(37, 99, 235, 0.15);
+  color: var(--primary-color);
+}
+
+.worker-dash-tile-muted .worker-dash-tile-icon {
+  background: rgba(13, 148, 136, 0.12);
+  color: #0d9488;
+}
+
+.worker-dash-tile-accent .worker-dash-tile-icon {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+}

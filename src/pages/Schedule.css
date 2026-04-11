@@ -106,12 +106,44 @@
   color: var(--text-secondary);
 }
 
+.schedule-assign-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.schedule-assign-icon {
+  color: var(--primary-color);
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+
+.schedule-assign-select {
+  flex: 1 1 12rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
 @media (max-width: 768px) {
   .schedule-item-header,
   .schedule-item-footer {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+  }
+
+  .schedule-assign-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .schedule-assign-row .btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 

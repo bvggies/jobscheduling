@@ -91,6 +91,22 @@ export const scheduleAPI = {
   update: (jobId, data) => api.put(`/schedule/${jobId}`, data),
 };
 
+/** Origin for Socket.IO (same host as API, without `/api`). */
+export function getChatSocketOrigin() {
+  if (process.env.REACT_APP_WS_ORIGIN) return process.env.REACT_APP_WS_ORIGIN.replace(/\/$/, '');
+  const base = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  return base.replace(/\/api\/?$/, '');
+}
+
+export const chatAPI = {
+  listThreads: () => api.get('/chat/threads'),
+  openThread: (peer_user_id) => api.post('/chat/threads', { peer_user_id }),
+  openShopThread: () => api.post('/chat/threads/shop', {}),
+  getMessages: (threadId, params = {}) => api.get(`/chat/threads/${threadId}/messages`, { params }),
+  sendMessage: (threadId, body) => api.post(`/chat/threads/${threadId}/messages`, { body }),
+  markRead: (threadId) => api.patch(`/chat/threads/${threadId}/read`),
+};
+
 export const analyticsAPI = {
   get: (filters = {}) => api.get('/analytics', { params: filters }),
 };

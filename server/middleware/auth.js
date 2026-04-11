@@ -43,6 +43,23 @@ function signToken(user) {
   );
 }
 
+function verifyTokenString(token) {
+  if (!token || typeof token !== 'string') return null;
+  const secret = getJwtSecret();
+  if (!secret) return null;
+  try {
+    const payload = jwt.verify(token.trim(), secret);
+    return {
+      id: payload.sub,
+      email: payload.email,
+      role: payload.role,
+      name: payload.name,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function requireAuth(req, res, next) {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) {
@@ -92,6 +109,7 @@ function requireAdminOrWorker(req, res, next) {
 
 module.exports = {
   signToken,
+  verifyTokenString,
   requireAuth,
   requireAdmin,
   requireCustomer,

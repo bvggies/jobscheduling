@@ -5,6 +5,7 @@ import 'aos/dist/aos.css';
 import './App.css';
 
 import { AuthProvider } from './context/AuthContext';
+import { ChatSocketProvider } from './context/ChatSocketContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { PrivateRoute } from './components/PrivateRoute';
 import AdminLayout from './layouts/AdminLayout';
@@ -33,6 +34,7 @@ import CustomerJobs from './pages/customer/CustomerJobs';
 import CustomerJobForm from './pages/customer/CustomerJobForm';
 import CustomerJobDetail from './pages/customer/CustomerJobDetail';
 import CustomerFeedback from './pages/customer/CustomerFeedback';
+import ChatPage from './pages/ChatPage';
 
 function AOSRefresh() {
   const location = useLocation();
@@ -57,6 +59,7 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <ChatSocketProvider>
         <Router>
         <AOSRefresh />
         <Routes>
@@ -78,6 +81,7 @@ function App() {
               <Route path="/feedback" element={<FeedbackAdmin />} />
               <Route path="/activity" element={<WorkActivity />} />
               <Route path="/team" element={<TeamManagement />} />
+              <Route path="/chat" element={<ChatPage />} />
             </Route>
           </Route>
 
@@ -89,6 +93,7 @@ function App() {
               <Route path="/worker/schedule" element={<Schedule workerView />} />
               <Route path="/worker/activity" element={<WorkActivity />} />
               <Route path="/worker/alerts" element={<Alerts />} />
+              <Route path="/worker/chat" element={<ChatPage />} />
             </Route>
           </Route>
 
@@ -99,6 +104,7 @@ function App() {
               <Route path="/portal/jobs/new" element={<CustomerJobForm />} />
               <Route path="/portal/jobs/:id" element={<CustomerJobDetail />} />
               <Route path="/portal/feedback" element={<CustomerFeedback />} />
+              <Route path="/portal/chat" element={<ChatPage />} />
             </Route>
           </Route>
 
@@ -106,6 +112,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         </Router>
+        </ChatSocketProvider>
       </AuthProvider>
     </ThemeProvider>
   );

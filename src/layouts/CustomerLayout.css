@@ -1,5 +1,7 @@
 .customer-app {
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
   background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 40%, #eef2f7 100%);
   background-image:
     radial-gradient(ellipse 90% 50% at 0% 0%, rgba(37, 99, 235, 0.06), transparent 55%),
@@ -98,8 +100,11 @@
 
 .customer-main {
   max-width: 960px;
+  width: 100%;
+  min-width: 0;
   margin: 0 auto;
-  padding: 2.25rem 1.35rem 3.5rem;
+  padding: 2.25rem min(1.35rem, 4vw) 3.5rem;
+  box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
