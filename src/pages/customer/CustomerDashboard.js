@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { jobsAPI, feedbackAPI, activityAPI } from '../../services/api';
 import { FiBriefcase, FiMessageSquare, FiPlus } from 'react-icons/fi';
+import ShopInfoPanel from '../../components/ShopInfoPanel';
 import './CustomerPages.css';
 
 export default function CustomerDashboard() {
@@ -55,8 +56,8 @@ export default function CustomerDashboard() {
         <Link to="/portal/jobs/new" className="customer-tile">
           <FiPlus className="customer-tile-icon" />
           <div>
-            <h2>New job</h2>
-            <p>Request a new print job</p>
+            <h2>Order a service</h2>
+            <p>See price instantly, pay deposit, book a slot</p>
           </div>
         </Link>
         <Link to="/portal/feedback" className="customer-tile">
@@ -93,13 +94,7 @@ export default function CustomerDashboard() {
       ) : null}
 
       <section className="customer-info-panel">
-        <h2>How it works</h2>
-        <ol className="customer-steps">
-          <li>Submit a job with product details and finishing options.</li>
-          <li>The shop links your job to your account so you see every production update in real time.</li>
-          <li>Open any job for the full timeline; post updates so the shop can track your progress too.</li>
-          <li>Use Feedback for general questions; replies appear on that thread.</li>
-        </ol>
+        <ShopInfoPanel compact />
       </section>
     </motion.div>
   );

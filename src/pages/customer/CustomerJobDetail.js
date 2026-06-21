@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { jobsAPI } from '../../services/api';
 import JobActivityPanel from '../../components/JobActivityPanel';
+import CustomerDepositInfo from '../../components/CustomerDepositInfo';
 import { STATUS_COLORS } from '../../utils/constants';
 import './CustomerPages.css';
 
@@ -74,35 +75,49 @@ export default function CustomerJobDetail() {
           </p>
         </div>
       ) : null}
+      <CustomerDepositInfo job={job} />
       <div className="customer-form-panel customer-detail-grid">
         <div className="customer-detail-item">
-          <label>Product</label>
+          <label>Service</label>
           <span>{job.product_type}</span>
+        </div>
+        <div className="customer-detail-item">
+          <label>Size / option</label>
+          <span>{job.substrate}</span>
         </div>
         <div className="customer-detail-item">
           <label>Quantity</label>
           <span>{job.quantity}</span>
         </div>
+        {job.unit_price != null && parseFloat(job.unit_price) > 0 ? (
+          <div className="customer-detail-item">
+            <label>Unit price</label>
+            <span>₵{parseFloat(job.unit_price).toFixed(2)}</span>
+          </div>
+        ) : null}
+        {job.total_cost != null && parseFloat(job.total_cost) > 0 ? (
+          <div className="customer-detail-item">
+            <label>Total</label>
+            <span>₵{parseFloat(job.total_cost).toFixed(2)}</span>
+          </div>
+        ) : null}
         <div className="customer-detail-item">
-          <label>Substrate</label>
-          <span>{job.substrate}</span>
+          <label>Appointment</label>
+          <span>
+            {job.due_date ? format(new Date(job.due_date), 'MMM d, yyyy') : '—'}
+            {job.due_time ? ` at ${String(job.due_time).slice(0, 5)}` : ''}
+          </span>
         </div>
         <div className="customer-detail-item">
-          <label>Due date</label>
-          <span>{job.due_date ? format(new Date(job.due_date), 'MMM d, yyyy') : '—'}</span>
+          <label>Status</label>
+          <span style={{ color: STATUS_COLORS[job.status], fontWeight: 600 }}>{job.status}</span>
         </div>
-        <div className="customer-detail-item">
-          <label>Priority</label>
-          <span>{job.priority}</span>
-        </div>
-        <div className="customer-detail-item">
-          <label>Deposit</label>
-          <span>{job.deposit_status}</span>
-        </div>
-        <div className="customer-detail-item">
-          <label>Payment</label>
-          <span>{job.payment_status}</span>
-        </div>
+        {job.po_number ? (
+          <div className="customer-detail-item">
+            <label>PO number</label>
+            <span>{job.po_number}</span>
+          </div>
+        ) : null}
         {job.machine_name ? (
           <div className="customer-detail-item">
             <label>Machine</label>

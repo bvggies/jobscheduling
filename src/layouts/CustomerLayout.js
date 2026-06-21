@@ -30,7 +30,7 @@ export default function CustomerLayout() {
             to="/portal/jobs/new"
             className={({ isActive }) => `customer-nav-link ${isActive ? 'active' : ''}`}
           >
-            <FiPlus /> New job
+            <FiPlus /> Order service
           </NavLink>
           <NavLink
             to="/portal/chat"

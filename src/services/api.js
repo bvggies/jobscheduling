@@ -97,8 +97,14 @@ export const machinesAPI = {
 
 export const scheduleAPI = {
   getAll: (filters = {}) => api.get('/schedule', { params: filters }),
+  getAvailableSlots: (params = {}) => api.get('/schedule/available-slots', { params }),
   autoSchedule: () => api.post('/schedule/auto-schedule'),
   update: (jobId, data) => api.put(`/schedule/${jobId}`, data),
+};
+
+export const servicesAPI = {
+  getCatalog: () => api.get('/services/catalog'),
+  calculate: (data) => api.post('/services/calculate', data),
 };
 
 /** Origin for Socket.IO (same host as API, without `/api`). */

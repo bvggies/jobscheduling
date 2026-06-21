@@ -12,6 +12,7 @@ const feedbackRoutes = require('./routes/feedback');
 const usersRoutes = require('./routes/users');
 const activityRoutes = require('./routes/activity');
 const chatRoutes = require('./routes/chat');
+const servicesRoutes = require('./routes/services');
 const db = require('./config/database');
 const { attachChatSocket } = require('./chatSocket');
 
@@ -46,6 +47,7 @@ app.use(async (req, res, next) => {
   next();
 });
 
+app.use('/api/services', servicesRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/users', usersRoutes);

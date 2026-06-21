@@ -148,6 +148,24 @@ const initializeDatabase = async () => {
       END $$;
     `);
 
+    for (const col of [
+      { name: 'service_id', type: 'VARCHAR(64)' },
+      { name: 'service_variant', type: 'VARCHAR(64)' },
+      { name: 'unit_price', type: 'DECIMAL(10, 2)' },
+    ]) {
+      await pool.query(`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'jobs' AND column_name = '${col.name}'
+          ) THEN
+            ALTER TABLE jobs ADD COLUMN ${col.name} ${col.type};
+          END IF;
+        END $$;
+      `);
+    }
+
     // Create feedback table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS feedback (

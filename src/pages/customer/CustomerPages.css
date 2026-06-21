@@ -254,3 +254,54 @@
   color: var(--text-secondary);
   white-space: nowrap;
 }
+
+.customer-deposit-panel {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid #f59e0b;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.customer-deposit-panel--paid {
+  border-left-color: #22c55e;
+}
+
+.customer-deposit-panel--quote {
+  border-left-color: #3b82f6;
+}
+
+.customer-deposit-panel h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+
+.customer-deposit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.customer-deposit-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.15rem;
+}
+
+.customer-deposit-instructions ul {
+  margin: 0.5rem 0;
+  padding-left: 1.1rem;
+}
+
+.customer-deposit-instructions p {
+  margin: 0.35rem 0;
+}
+
+.customer-deposit-confirmed {
+  margin: 0;
+  color: #15803d;
+  font-weight: 500;
+}

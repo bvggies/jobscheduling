@@ -4,8 +4,20 @@ const db = require('../config/database');
 const { scheduleJobs, computeSlotForJob } = require('../utils/scheduler');
 const { requireAuth, requireAdmin, requireAdminOrWorker } = require('../middleware/auth');
 const { logJobFieldChanges } = require('../utils/jobUpdates');
+const { getAvailableSlots } = require('../utils/appointmentSlots');
 
 router.use(requireAuth);
+
+router.get('/available-slots', async (req, res) => {
+  try {
+    const daysAhead = Math.min(parseInt(req.query.days, 10) || 14, 30);
+    const slots = await getAvailableSlots(db, { daysAhead });
+    res.json(slots);
+  } catch (error) {
+    console.error('Error fetching available slots:', error);
+    res.status(500).json({ error: 'Failed to fetch available slots' });
+  }
+});
 
 router.get('/', requireAdminOrWorker, async (req, res) => {
   try {

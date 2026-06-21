@@ -1,0 +1,66 @@
+.service-order-page .service-order-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.service-order-info-wrap {
+  margin-bottom: 1.5rem;
+}
+
+.service-pricing-section .service-price-summary {
+  background: var(--light-color, #f0f9ff);
+  border: 1px solid var(--border-color, #bfdbfe);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.service-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0;
+  color: var(--text-secondary);
+}
+
+.service-price-row strong {
+  color: var(--text-primary);
+}
+
+.service-price-total {
+  font-size: 1.25rem;
+  color: var(--primary-color, #2563eb) !important;
+}
+
+.service-price-deposit {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.service-deposit-note {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+.service-quote-notice {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.service-quote-notice p {
+  margin: 0 0 0.5rem;
+}
+
+.loading-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.text-danger {
+  color: #dc2626;
+}

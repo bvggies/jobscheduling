@@ -1,6 +1,18 @@
 export const PRIORITIES = ['Low', 'Medium', 'High', 'Rush'];
 export const STATUSES = ['Not Started', 'Ready', 'In Progress', 'Completed'];
 export const PRODUCT_TYPES = [
+  'DTF Printing',
+  'Banner Printing',
+  'Sticker Printing',
+  'Square Foot — Sticker',
+  'Square Foot — Banner',
+  'Square Foot — One-way Vision',
+  'Square Foot — Reflective Sticker',
+  'Material — Cloth Printing',
+  'Digital Flag Printing',
+  'Wooden Frame — Complete',
+  'Signage / 3D Signboard',
+  'T-Shirt Printing',
   'Business Card',
   'Brochure',
   'Poster',

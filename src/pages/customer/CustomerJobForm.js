@@ -1,6 +1,6 @@
 import React from 'react';
-import JobForm from '../JobForm';
+import ServiceOrderForm from '../../components/ServiceOrderForm';
 
 export default function CustomerJobForm() {
-  return <JobForm portalMode />;
+  return <ServiceOrderForm />;
 }

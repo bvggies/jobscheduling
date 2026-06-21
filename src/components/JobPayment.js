@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { jobsAPI } from '../services/api';
 import { FiDollarSign, FiCheck, FiX } from 'react-icons/fi';
 import { format } from 'date-fns';
+import { DEPOSIT_PERCENT } from '../utils/shopConfig';
 import './JobPayment.css';
 
 const JobPayment = ({ job, onUpdate }) => {
@@ -60,7 +61,7 @@ const JobPayment = ({ job, onUpdate }) => {
 
       <div className="payment-details">
         <div className="payment-section">
-          <h4>Deposit</h4>
+          <h4>Deposit ({DEPOSIT_PERCENT * 100}% minimum before work starts)</h4>
           <div className="payment-info">
             <div className="payment-row">
               <span>Required:</span>

@@ -1,0 +1,96 @@
+.shop-info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.shop-info-section {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.shop-info-section h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.75rem;
+  color: var(--text-primary);
+}
+
+.shop-info-steps {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.shop-info-steps strong {
+  color: var(--text-primary);
+}
+
+.shop-price-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.shop-price-card {
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--light-color, #f9fafb);
+}
+
+.shop-price-card h3 {
+  font-size: 0.95rem;
+  margin: 0 0 0.5rem;
+}
+
+.shop-price-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.shop-price-card li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  padding: 0.2rem 0;
+  color: var(--text-secondary);
+}
+
+.shop-price-card li strong {
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.shop-info-hours-contact {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.shop-info-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.shop-info-contact a {
+  color: var(--primary-color, #2563eb);
+  text-decoration: none;
+}
+
+.shop-info-contact a:hover {
+  text-decoration: underline;
+}
+
+.shop-info-panel--compact .shop-price-grid {
+  grid-template-columns: 1fr;
+}

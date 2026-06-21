@@ -5,6 +5,8 @@ const db = require('../config/database');
 const { createAlert } = require('../utils/alerts');
 const { requireAuth, requireAdmin, requireAdminOrWorker } = require('../middleware/auth');
 const { insertJobUpdate, logJobFieldChanges } = require('../utils/jobUpdates');
+const { validateCustomerOrder } = require('../utils/serviceCatalog');
+const { getAvailableSlots, isValidBookableSlot, slotKey } = require('../utils/appointmentSlots');
 
 /** PO-YYYYMMDD-XXXXXXXX (8 hex) — collision-checked before insert */
 function buildPoCandidate() {
@@ -243,6 +245,101 @@ router.post('/', requireAuth, async (req, res) => {
     if (req.user.role === 'worker') {
       return res.status(403).json({ error: 'Workers cannot create jobs' });
     }
+
+    const isCustomerOrder = req.user.role === 'customer';
+
+    if (isCustomerOrder) {
+      const {
+        service_id,
+        service_variant,
+        quantity,
+        due_date,
+        due_time,
+        total_cost,
+        deposit_required,
+        job_name: customJobName,
+      } = req.body;
+
+      if (!service_id || !quantity || !due_date || !due_time) {
+        return res.status(400).json({
+          error: 'Select a service, quantity, and an available appointment slot',
+        });
+      }
+
+      if (!isValidBookableSlot(due_date, due_time)) {
+        return res.status(400).json({ error: 'Selected appointment slot is not available' });
+      }
+
+      const available = await getAvailableSlots(db, { daysAhead: 30 });
+      const chosenKey = slotKey(due_date, String(due_time).slice(0, 5));
+      if (!available.some((s) => slotKey(s.date, s.time) === chosenKey)) {
+        return res.status(409).json({ error: 'That time slot was just booked. Please choose another.' });
+      }
+
+      const validation = validateCustomerOrder({
+        service_id,
+        service_variant,
+        quantity,
+        total_cost,
+        deposit_required,
+        due_date,
+        due_time,
+      });
+      if (!validation.ok) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const { pricing, service } = validation;
+      const poNumber = await allocateUniquePoNumber();
+      const resolvedCustomerName = req.user.name;
+      const variantLabel = pricing.variantLabel || service.name;
+      const autoJobName =
+        customJobName?.trim() ||
+        `${service.name}${variantLabel && variantLabel !== service.name ? ` — ${variantLabel}` : ''}`;
+
+      const result = await db.query(
+        `INSERT INTO jobs (
+          job_name, po_number, customer_name, product_type, quantity,
+          substrate, finishing, due_date, due_time, priority, total_cost, deposit_required,
+          user_id, service_id, service_variant, unit_price
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        RETURNING *`,
+        [
+          autoJobName,
+          poNumber,
+          resolvedCustomerName,
+          service.name,
+          parseInt(quantity, 10),
+          variantLabel,
+          [],
+          due_date,
+          String(due_time).slice(0, 5),
+          'Medium',
+          pricing.quoteRequired ? 0 : pricing.total,
+          pricing.quoteRequired ? 0 : pricing.depositRequired,
+          req.user.id,
+          service_id,
+          service_variant || null,
+          pricing.unitPrice,
+        ]
+      );
+
+      const job = result.rows[0];
+
+      await insertJobUpdate({
+        jobId: job.id,
+        actorId: req.user.id,
+        actorRole: req.user.role,
+        actorName: req.user.name || req.user.email,
+        kind: 'created',
+        summary: pricing.quoteRequired
+          ? 'Quote request submitted — the shop will confirm pricing before you pay a deposit.'
+          : `Order submitted. Total ₵${pricing.total}, deposit ₵${pricing.depositRequired} (80%) due before work starts.`,
+      });
+
+      return res.status(201).json(job);
+    }
+
     const {
       job_name,
       customer_name,

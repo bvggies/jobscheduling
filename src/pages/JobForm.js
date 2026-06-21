@@ -10,6 +10,7 @@ import {
   SUBSTRATES,
   FINISHING_OPTIONS,
 } from '../utils/constants';
+import { calcDepositRequired, DEPOSIT_PERCENT } from '../utils/shopConfig';
 import { FiSave, FiX, FiDollarSign, FiUserPlus, FiTool } from 'react-icons/fi';
 import JobPayment from '../components/JobPayment';
 import { STATUSES } from '../utils/constants';
@@ -135,7 +136,12 @@ const JobForm = ({ portalMode = false }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (portalMode && name === 'customer_name') return;
-    setFormData({ ...formData, [name]: value });
+    const next = { ...formData, [name]: value };
+    if (name === 'total_cost' && !portalMode) {
+      const total = parseFloat(value) || 0;
+      next.deposit_required = total > 0 ? calcDepositRequired(total) : '';
+    }
+    setFormData(next);
   };
 
   const handleNewCustomerField = (e) => {
@@ -544,6 +550,7 @@ const JobForm = ({ portalMode = false }) => {
                 step="0.01"
                 min="0"
               />
+              <small className="form-hint">Minimum {DEPOSIT_PERCENT * 100}% of total — auto-filled when you enter total cost</small>
             </div>
           </div>
         </div>
