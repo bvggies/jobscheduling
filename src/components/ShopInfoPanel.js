@@ -1,36 +1,26 @@
 import React from 'react';
-import {
-  SHOP_CONTACT,
-  DEPOSIT_PERCENT,
-  formatBusinessHoursSummary,
-} from '../utils/shopConfig';
-import { buildPriceListSections } from '../utils/serviceCatalog';
+import { useServiceCatalog } from '../hooks/useServiceCatalog';
+import { SHOP_CONTACT, DEPOSIT_PERCENT, formatBusinessHoursSummary } from '../utils/shopConfig';
 import './ShopInfoPanel.css';
 
 export default function ShopInfoPanel({ showPriceList = true, compact = false }) {
-  const priceSections = buildPriceListSections();
+  const { priceList, hoursSummary, loading } = useServiceCatalog();
+  const sections = priceList.length ? priceList : [];
+  const hours = hoursSummary.length ? hoursSummary : formatBusinessHoursSummary();
+
+  if (loading && !sections.length) {
+    return <div className="shop-info-panel"><p>Loading shop info…</p></div>;
+  }
 
   return (
     <div className={`shop-info-panel ${compact ? 'shop-info-panel--compact' : ''}`}>
       <section className="shop-info-section">
         <h2>How the system works</h2>
         <ol className="shop-info-steps">
-          <li>
-            <strong>Pick a service & see price instantly</strong> — Select any service from our price list. The
-            system shows the unit price and calculates your total from size and quantity.
-          </li>
-          <li>
-            <strong>Pay deposit before work starts</strong> — After your total is shown, pay a deposit of at least{' '}
-            {DEPOSIT_PERCENT * 100}%. Work begins only after the shop confirms your deposit.
-          </li>
-          <li>
-            <strong>Book available time slots only</strong> — Choose from system-generated appointment dates and
-            times. Manual date entry is not allowed.
-          </li>
-          <li>
-            <strong>Same flow for every service</strong> — Select → unit price → total → pay deposit → book your
-            slot.
-          </li>
+          <li><strong>Pick a service & see price instantly</strong> — Unit price and total from size/quantity.</li>
+          <li><strong>Pay deposit before booking</strong> — Pay at least {DEPOSIT_PERCENT * 100}% via MoMo, then book your slot.</li>
+          <li><strong>Book available slots only</strong> — System-generated times; last slot by 5:00 PM.</li>
+          <li><strong>Work starts after confirmation</strong> — The shop verifies your MoMo payment before production.</li>
         </ol>
       </section>
 
@@ -38,7 +28,7 @@ export default function ShopInfoPanel({ showPriceList = true, compact = false })
         <section className="shop-info-section">
           <h2>Price list (GHS)</h2>
           <div className="shop-price-grid">
-            {priceSections.map((section) => (
+            {sections.map((section) => (
               <div key={section.name} className="shop-price-card">
                 <h3>{section.name}</h3>
                 <ul>
@@ -59,7 +49,7 @@ export default function ShopInfoPanel({ showPriceList = true, compact = false })
         <div>
           <h2>Working days & hours</h2>
           <ul className="shop-info-list">
-            {formatBusinessHoursSummary().map((line) => (
+            {hours.map((line) => (
               <li key={line}>{line}</li>
             ))}
           </ul>

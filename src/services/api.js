@@ -69,6 +69,9 @@ export const jobsAPI = {
   delete: (id) => api.delete(`/jobs/${id}`),
   duplicate: (id) => api.post(`/jobs/${id}/duplicate`),
   updateStatus: (id, status) => api.patch(`/jobs/${id}/status`, { status }),
+  submitDeposit: (id, deposit_payment) => api.patch(`/jobs/${id}/submit-deposit`, { deposit_payment }),
+  verifyDeposit: (id, action) => api.patch(`/jobs/${id}/verify-deposit`, { action }),
+  setQuote: (id, data) => api.patch(`/jobs/${id}/quote`, data),
   updatePayment: (id, type, amount, date) =>
     api.patch(`/jobs/${id}/payment`, { type, amount, date }),
 };
@@ -105,6 +108,10 @@ export const scheduleAPI = {
 export const servicesAPI = {
   getCatalog: () => api.get('/services/catalog'),
   calculate: (data) => api.post('/services/calculate', data),
+  listManage: () => api.get('/services/manage'),
+  create: (data) => api.post('/services/manage', data),
+  update: (id, data) => api.put(`/services/manage/${id}`, data),
+  deactivate: (id) => api.delete(`/services/manage/${id}`),
 };
 
 /** Origin for Socket.IO (same host as API, without `/api`). */

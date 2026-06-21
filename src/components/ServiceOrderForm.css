@@ -61,6 +61,37 @@
   color: var(--text-secondary);
 }
 
-.text-danger {
-  color: #dc2626;
+.service-order-actions {
+  justify-content: space-between;
+}
+
+.service-order-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.service-step-pill {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--light-color, #f3f4f6);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.service-step-pill.active {
+  background: var(--primary-color, #2563eb);
+  color: #fff;
+}
+
+.service-review-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.service-review-list li {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border-color);
 }

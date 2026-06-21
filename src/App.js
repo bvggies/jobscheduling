@@ -26,6 +26,7 @@ import Register from './pages/Register';
 import FeedbackAdmin from './pages/FeedbackAdmin';
 import WorkActivity from './pages/WorkActivity';
 import TeamManagement from './pages/TeamManagement';
+import ServiceManagement from './pages/ServiceManagement';
 import WorkerDashboard from './pages/worker/WorkerDashboard';
 import WorkerJobDetail from './pages/worker/WorkerJobDetail';
 
@@ -81,6 +82,7 @@ function App() {
               <Route path="/feedback" element={<FeedbackAdmin />} />
               <Route path="/activity" element={<WorkActivity />} />
               <Route path="/team" element={<TeamManagement />} />
+              <Route path="/services" element={<ServiceManagement />} />
               <Route path="/chat" element={<ChatPage />} />
             </Route>
           </Route>

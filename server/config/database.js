@@ -152,6 +152,11 @@ const initializeDatabase = async () => {
       { name: 'service_id', type: 'VARCHAR(64)' },
       { name: 'service_variant', type: 'VARCHAR(64)' },
       { name: 'unit_price', type: 'DECIMAL(10, 2)' },
+      { name: 'deposit_momo_phone', type: 'VARCHAR(32)' },
+      { name: 'deposit_momo_reference', type: 'VARCHAR(128)' },
+      { name: 'deposit_submitted_amount', type: 'DECIMAL(10, 2)' },
+      { name: 'deposit_submitted_at', type: 'TIMESTAMP' },
+      { name: 'deposit_verification_status', type: "VARCHAR(20) DEFAULT 'none'" },
     ]) {
       await pool.query(`
         DO $$
@@ -165,6 +170,21 @@ const initializeDatabase = async () => {
         END $$;
       `);
     }
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS shop_services (
+        id VARCHAR(64) PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        pricing_type VARCHAR(32) NOT NULL,
+        config JSONB NOT NULL DEFAULT '{}',
+        quote_note TEXT,
+        requires_appointment BOOLEAN DEFAULT true,
+        active BOOLEAN DEFAULT true,
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
 
     // Create feedback table
     await pool.query(`

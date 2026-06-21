@@ -15,6 +15,21 @@
   border-bottom: 2px solid var(--border-color);
 }
 
+.momo-verification-box {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 0.5rem;
+}
+
+.momo-verification-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .payment-header h3 {
   font-size: 1.25rem;
   font-weight: 600;

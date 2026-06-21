@@ -75,7 +75,7 @@ export default function CustomerJobDetail() {
           </p>
         </div>
       ) : null}
-      <CustomerDepositInfo job={job} />
+      <CustomerDepositInfo job={job} onUpdate={load} />
       <div className="customer-form-panel customer-detail-grid">
         <div className="customer-detail-item">
           <label>Service</label>

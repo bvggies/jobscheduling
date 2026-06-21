@@ -52,11 +52,17 @@ function generateSlotCandidates(daysAhead = 14, fromDate = new Date()) {
 
     const open = parseTimeOnDate(day, hours.open);
     const close = parseTimeOnDate(day, hours.close);
+    const cutoff = BUSINESS_HOURS.sameDayCutoff
+      ? parseTimeOnDate(day, BUSINESS_HOURS.sameDayCutoff)
+      : close;
+    const lastSlotStart = new Date(
+      Math.min(close.getTime(), cutoff.getTime()) - SLOT_MINUTES * 60 * 1000
+    );
     let cursor = new Date(open);
 
-    while (cursor < close) {
+    while (cursor <= lastSlotStart) {
       const slotEnd = new Date(cursor.getTime() + SLOT_MINUTES * 60 * 1000);
-      if (slotEnd > close) break;
+      if (slotEnd > close || slotEnd > cutoff) break;
       if (!isDuringBreak(cursor, slotEnd) && cursor > fromDate) {
         slots.push({
           date: formatDateISO(cursor),
@@ -121,9 +127,13 @@ function isValidBookableSlot(dateStr, timeStr, fromDate = new Date()) {
   const slotEnd = new Date(slotStart.getTime() + SLOT_MINUTES * 60 * 1000);
   const open = parseTimeOnDate(day, hours.open);
   const close = parseTimeOnDate(day, hours.close);
+  const cutoff = BUSINESS_HOURS.sameDayCutoff
+    ? parseTimeOnDate(day, BUSINESS_HOURS.sameDayCutoff)
+    : close;
 
   if (slotStart <= fromDate) return false;
   if (slotStart < open || slotEnd > close) return false;
+  if (slotEnd > cutoff) return false;
   if (isDuringBreak(slotStart, slotEnd)) return false;
   return true;
 }

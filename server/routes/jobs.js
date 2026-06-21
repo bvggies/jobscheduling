@@ -5,7 +5,7 @@ const db = require('../config/database');
 const { createAlert } = require('../utils/alerts');
 const { requireAuth, requireAdmin, requireAdminOrWorker } = require('../middleware/auth');
 const { insertJobUpdate, logJobFieldChanges } = require('../utils/jobUpdates');
-const { validateCustomerOrder } = require('../utils/serviceCatalog');
+const { validateCustomerOrder, validateDepositPayment } = require('../utils/serviceCatalog');
 const { getAvailableSlots, isValidBookableSlot, slotKey } = require('../utils/appointmentSlots');
 
 /** PO-YYYYMMDD-XXXXXXXX (8 hex) — collision-checked before insert */
@@ -258,6 +258,7 @@ router.post('/', requireAuth, async (req, res) => {
         total_cost,
         deposit_required,
         job_name: customJobName,
+        deposit_payment,
       } = req.body;
 
       if (!service_id || !quantity || !due_date || !due_time) {
@@ -276,17 +277,20 @@ router.post('/', requireAuth, async (req, res) => {
         return res.status(409).json({ error: 'That time slot was just booked. Please choose another.' });
       }
 
-      const validation = validateCustomerOrder({
+      const validation = await validateCustomerOrder(db, {
         service_id,
         service_variant,
         quantity,
         total_cost,
         deposit_required,
-        due_date,
-        due_time,
       });
       if (!validation.ok) {
         return res.status(400).json({ error: validation.error });
+      }
+
+      const paymentCheck = validateDepositPayment(validation.pricing, deposit_payment);
+      if (!paymentCheck.ok) {
+        return res.status(400).json({ error: paymentCheck.error });
       }
 
       const { pricing, service } = validation;
@@ -301,8 +305,10 @@ router.post('/', requireAuth, async (req, res) => {
         `INSERT INTO jobs (
           job_name, po_number, customer_name, product_type, quantity,
           substrate, finishing, due_date, due_time, priority, total_cost, deposit_required,
-          user_id, service_id, service_variant, unit_price
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+          user_id, service_id, service_variant, unit_price,
+          deposit_momo_phone, deposit_momo_reference, deposit_submitted_amount, deposit_submitted_at,
+          deposit_verification_status
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
         RETURNING *`,
         [
           autoJobName,
@@ -321,6 +327,11 @@ router.post('/', requireAuth, async (req, res) => {
           service_id,
           service_variant || null,
           pricing.unitPrice,
+          pricing.quoteRequired ? null : String(deposit_payment.momo_phone).trim(),
+          pricing.quoteRequired ? null : String(deposit_payment.momo_reference).trim(),
+          pricing.quoteRequired ? null : paymentCheck.amount,
+          pricing.quoteRequired ? null : new Date(),
+          pricing.quoteRequired ? 'none' : 'pending',
         ]
       );
 
@@ -334,7 +345,7 @@ router.post('/', requireAuth, async (req, res) => {
         kind: 'created',
         summary: pricing.quoteRequired
           ? 'Quote request submitted — the shop will confirm pricing before you pay a deposit.'
-          : `Order submitted. Total ₵${pricing.total}, deposit ₵${pricing.depositRequired} (80%) due before work starts.`,
+          : `Order submitted with MoMo deposit ₵${paymentCheck.amount} (ref: ${deposit_payment.momo_reference}). Awaiting shop confirmation before work starts.`,
       });
 
       return res.status(201).json(job);
@@ -719,6 +730,186 @@ router.post('/:id/duplicate', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+router.patch('/:id/submit-deposit', requireAuth, async (req, res) => {
+  try {
+    const access = await assertJobAccess(req, req.params.id);
+    if (access.error) return res.status(access.error.status).json(access.error.body);
+    const job = access.job;
+
+    if (req.user.role !== 'customer') {
+      return res.status(403).json({ error: 'Only customers can submit MoMo deposit payments here' });
+    }
+    if (parseFloat(job.total_cost) <= 0 || parseFloat(job.deposit_required) <= 0) {
+      return res.status(400).json({ error: 'Wait for the shop to confirm your quote before paying a deposit' });
+    }
+    if (job.deposit_status === 'Received') {
+      return res.status(400).json({ error: 'Deposit already confirmed' });
+    }
+    if (job.deposit_verification_status === 'pending') {
+      return res.status(400).json({ error: 'Your deposit is already pending verification' });
+    }
+
+    const pricing = {
+      quoteRequired: false,
+      depositRequired: parseFloat(job.deposit_required),
+    };
+    const paymentCheck = validateDepositPayment(pricing, req.body.deposit_payment || req.body);
+    if (!paymentCheck.ok) return res.status(400).json({ error: paymentCheck.error });
+
+    const payment = req.body.deposit_payment || req.body;
+    const result = await db.query(
+      `UPDATE jobs SET
+        deposit_momo_phone = $1,
+        deposit_momo_reference = $2,
+        deposit_submitted_amount = $3,
+        deposit_submitted_at = CURRENT_TIMESTAMP,
+        deposit_verification_status = 'pending',
+        updated_at = CURRENT_TIMESTAMP
+       WHERE id = $4
+       RETURNING *`,
+      [
+        String(payment.momo_phone).trim(),
+        String(payment.momo_reference).trim(),
+        paymentCheck.amount,
+        req.params.id,
+      ]
+    );
+
+    await insertJobUpdate({
+      jobId: job.id,
+      actorId: req.user.id,
+      actorRole: req.user.role,
+      actorName: req.user.name || req.user.email,
+      kind: 'payment',
+      summary: `MoMo deposit submitted: ₵${paymentCheck.amount} (ref: ${payment.momo_reference}). Awaiting shop confirmation.`,
+    });
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Submit deposit error:', error);
+    res.status(500).json({ error: 'Failed to submit deposit payment' });
+  }
+});
+
+router.patch('/:id/verify-deposit', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const existing = await loadJobRow(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Job not found' });
+
+    const { action } = req.body;
+    if (!['confirm', 'reject'].includes(action)) {
+      return res.status(400).json({ error: 'action must be confirm or reject' });
+    }
+    if (existing.deposit_verification_status !== 'pending') {
+      return res.status(400).json({ error: 'No pending MoMo deposit to verify' });
+    }
+
+    let result;
+    if (action === 'confirm') {
+      const amount = parseFloat(existing.deposit_submitted_amount || 0);
+      const required = parseFloat(existing.deposit_required || 0);
+      if (amount < required - 0.01) {
+        return res.status(400).json({ error: 'Submitted amount is below required deposit' });
+      }
+      result = await db.query(
+        `UPDATE jobs SET
+          deposit_received = $1,
+          deposit_date = CURRENT_DATE,
+          deposit_status = 'Received',
+          deposit_verification_status = 'confirmed',
+          updated_at = CURRENT_TIMESTAMP
+         WHERE id = $2
+         RETURNING *`,
+        [amount, req.params.id]
+      );
+    } else {
+      result = await db.query(
+        `UPDATE jobs SET
+          deposit_verification_status = 'rejected',
+          updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1
+         RETURNING *`,
+        [req.params.id]
+      );
+    }
+
+    const updated = result.rows[0];
+    await insertJobUpdate({
+      jobId: updated.id,
+      actorId: req.user.id,
+      actorRole: req.user.role,
+      actorName: req.user.name || req.user.email,
+      kind: 'payment',
+      summary:
+        action === 'confirm'
+          ? `Deposit confirmed (₵${updated.deposit_received}). Work can proceed once marked Ready.`
+          : 'Submitted MoMo deposit was rejected — customer must pay again with a valid reference.',
+    });
+
+    try {
+      await logJobFieldChanges({
+        oldRow: existing,
+        newRow: updated,
+        actorId: req.user.id,
+        actorRole: req.user.role,
+        actorName: req.user.name || req.user.email,
+      });
+    } catch (logErr) {
+      console.error('Verify deposit log error:', logErr);
+    }
+
+    res.json(updated);
+  } catch (error) {
+    console.error('Verify deposit error:', error);
+    res.status(500).json({ error: 'Failed to verify deposit' });
+  }
+});
+
+router.patch('/:id/quote', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const existing = await loadJobRow(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Job not found' });
+
+    const totalCost = parseFloat(req.body.total_cost);
+    if (!Number.isFinite(totalCost) || totalCost <= 0) {
+      return res.status(400).json({ error: 'Enter a valid total cost for this quote' });
+    }
+    const { calcDepositRequired } = require('../utils/shopConfig');
+    const depositRequired =
+      req.body.deposit_required != null
+        ? parseFloat(req.body.deposit_required)
+        : calcDepositRequired(totalCost);
+    if (depositRequired < calcDepositRequired(totalCost) - 0.01) {
+      return res.status(400).json({ error: 'Deposit must be at least 80% of total cost' });
+    }
+
+    const result = await db.query(
+      `UPDATE jobs SET
+        total_cost = $1,
+        deposit_required = $2,
+        updated_at = CURRENT_TIMESTAMP
+       WHERE id = $3
+       RETURNING *`,
+      [totalCost, depositRequired, req.params.id]
+    );
+
+    const updated = result.rows[0];
+    await insertJobUpdate({
+      jobId: updated.id,
+      actorId: req.user.id,
+      actorRole: req.user.role,
+      actorName: req.user.name || req.user.email,
+      kind: 'quote',
+      summary: `Quote confirmed: total ₵${totalCost.toFixed(2)}, deposit ₵${depositRequired.toFixed(2)} (80%). Customer can now pay via MoMo.`,
+    });
+
+    res.json(updated);
+  } catch (error) {
+    console.error('Set quote error:', error);
+    res.status(500).json({ error: 'Failed to set quote pricing' });
+  }
+});
+
 router.patch('/:id/payment', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { type, amount, date } = req.body;
@@ -744,6 +935,7 @@ router.patch('/:id/payment', requireAuth, requireAdmin, async (req, res) => {
           deposit_received = $1,
           deposit_date = $2,
           deposit_status = $3,
+          deposit_verification_status = CASE WHEN $3 = 'Received' THEN 'confirmed' ELSE deposit_verification_status END,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = $4
         RETURNING *

@@ -14,8 +14,42 @@ const JobPayment = ({ job, onUpdate }) => {
     date: new Date().toISOString().split('T')[0],
   });
   const [loading, setLoading] = useState(false);
+  const [quoteTotal, setQuoteTotal] = useState('');
+  const [verifyLoading, setVerifyLoading] = useState(false);
 
   const balanceDue = (job.total_cost || 0) - (job.deposit_received || 0);
+  const momoPending = job.deposit_verification_status === 'pending';
+  const needsQuote = parseFloat(job.total_cost || 0) <= 0 && job.service_id;
+
+  const handleVerifyDeposit = async (action) => {
+    setVerifyLoading(true);
+    try {
+      await jobsAPI.verifyDeposit(job.id, action);
+      if (onUpdate) await onUpdate();
+    } catch (error) {
+      alert(error.response?.data?.error || 'Failed to verify deposit');
+    } finally {
+      setVerifyLoading(false);
+    }
+  };
+
+  const handleSetQuote = async () => {
+    const total = parseFloat(quoteTotal);
+    if (!Number.isFinite(total) || total <= 0) {
+      alert('Enter a valid quote total');
+      return;
+    }
+    setLoading(true);
+    try {
+      await jobsAPI.setQuote(job.id, { total_cost: total });
+      if (onUpdate) await onUpdate();
+      setQuoteTotal('');
+    } catch (error) {
+      alert(error.response?.data?.error || 'Failed to set quote');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePayment = async (type) => {
     if (!paymentData.amount || parseFloat(paymentData.amount) <= 0) {
@@ -83,7 +117,23 @@ const JobPayment = ({ job, onUpdate }) => {
                 {job.deposit_status || 'Pending'}
               </span>
             </div>
-            {job.deposit_status !== 'Received' && (
+            {momoPending ? (
+              <div className="momo-verification-box">
+                <p><strong>MoMo deposit awaiting verification</strong></p>
+                <div className="payment-row"><span>Submitted:</span><strong>₵{parseFloat(job.deposit_submitted_amount || 0).toFixed(2)}</strong></div>
+                <div className="payment-row"><span>From:</span><span>{job.deposit_momo_phone}</span></div>
+                <div className="payment-row"><span>Reference:</span><span>{job.deposit_momo_reference}</span></div>
+                <div className="momo-verification-actions">
+                  <button type="button" className="btn btn-primary btn-sm" disabled={verifyLoading} onClick={() => handleVerifyDeposit('confirm')}>
+                    Confirm MoMo deposit
+                  </button>
+                  <button type="button" className="btn btn-outline btn-sm" disabled={verifyLoading} onClick={() => handleVerifyDeposit('reject')}>
+                    Reject
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            {job.deposit_status !== 'Received' && !momoPending && (
               <button
                 onClick={() => setShowDepositModal(true)}
                 className="btn btn-primary btn-sm mt-2"
@@ -94,11 +144,30 @@ const JobPayment = ({ job, onUpdate }) => {
           </div>
         </div>
 
+        {needsQuote ? (
+          <div className="payment-section">
+            <h4>Set quote pricing</h4>
+            <p className="form-hint">Customer submitted a price-on-request service. Set total (80% deposit auto-calculated).</p>
+            <div className="form-group">
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                className="form-control"
+                placeholder="Total cost (GHS)"
+                value={quoteTotal}
+                onChange={(e) => setQuoteTotal(e.target.value)}
+              />
+            </div>
+            <button type="button" className="btn btn-primary btn-sm" disabled={loading} onClick={handleSetQuote}>
+              Save quote & notify customer
+            </button>
+          </div>
+        ) : null}
+
         <div className="payment-section">
           <h4>Final Payment</h4>
           <div className="payment-info">
-            <div className="payment-row">
-              <span>Total Cost:</span>
               <strong>₵{parseFloat(job.total_cost || 0).toFixed(2)}</strong>
             </div>
             <div className="payment-row">

@@ -13,6 +13,7 @@ import {
   FiActivity,
   FiUsers,
   FiMessageCircle,
+  FiTag,
 } from 'react-icons/fi';
 import './Sidebar.css';
 
@@ -30,6 +31,7 @@ const Sidebar = () => {
     { path: '/feedback', icon: FiMessageSquare, label: 'Feedback' },
     { path: '/activity', icon: FiActivity, label: 'Work activity' },
     { path: '/team', icon: FiUsers, label: 'Team' },
+    { path: '/services', icon: FiTag, label: 'Services' },
   ];
 
   return (
