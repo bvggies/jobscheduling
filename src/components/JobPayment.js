@@ -168,6 +168,8 @@ const JobPayment = ({ job, onUpdate }) => {
         <div className="payment-section">
           <h4>Final Payment</h4>
           <div className="payment-info">
+            <div className="payment-row">
+              <span>Total Cost:</span>
               <strong>₵{parseFloat(job.total_cost || 0).toFixed(2)}</strong>
             </div>
             <div className="payment-row">

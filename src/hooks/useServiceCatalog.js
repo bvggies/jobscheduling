@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { servicesAPI } from '../services/api';
 import { buildPriceListSectionsFromServices } from '../utils/servicePricing';
 
