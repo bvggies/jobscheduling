@@ -35,7 +35,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "cd server && node index.js",
-    "server:dev": "cd server && nodemon index.js"
+    "server:dev": "cd server && nodemon index.js",
+    "docs:pdf": "cd scripts && npm install && node generate-readme-pdf.mjs"
   },
   "eslintConfig": {
     "extends": [

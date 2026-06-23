@@ -1,0 +1,9 @@
+{
+  "name": "jobscheduler-docs-scripts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "marked": "^15.0.6",
+    "puppeteer": "^24.2.0"
+  }
+}

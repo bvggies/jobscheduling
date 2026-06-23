@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JobScheduler System Guide</title>
+  <style>
+@page { size: A4; margin: 18mm 16mm 22mm 16mm; }
+* { box-sizing: border-box; }
+html { font-size: 11pt; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1e293b;
+  line-height: 1.55;
+  margin: 0;
+  background: #fff;
+}
+.cover {
+  page-break-after: always;
+  min-height: 250mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(145deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%);
+  color: #fff;
+  padding: 24mm;
+  margin: -18mm -16mm 0;
+  width: calc(100% + 32mm);
+}
+.cover-badge {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 9pt;
+  opacity: 0.85;
+  margin-bottom: 12mm;
+}
+.cover h1 {
+  font-size: 34pt;
+  font-weight: 700;
+  margin: 0 0 6mm;
+  letter-spacing: -0.02em;
+}
+.cover .tagline {
+  font-size: 13pt;
+  max-width: 130mm;
+  opacity: 0.92;
+  margin-bottom: 14mm;
+  line-height: 1.5;
+}
+.cover-meta {
+  font-size: 9.5pt;
+  opacity: 0.8;
+  border-top: 1px solid rgba(255,255,255,0.25);
+  padding-top: 8mm;
+  width: 100%;
+  max-width: 140mm;
+}
+.content { padding: 0; }
+h1, h2, h3, h4 { color: #0f172a; page-break-after: avoid; }
+h1 { font-size: 22pt; margin: 0 0 4mm; padding-bottom: 3mm; border-bottom: 3px solid #2563eb; }
+h2 {
+  font-size: 15pt;
+  margin: 10mm 0 4mm;
+  padding: 3mm 4mm;
+  background: #eff6ff;
+  border-left: 4px solid #2563eb;
+  page-break-before: auto;
+}
+h3 { font-size: 12pt; margin: 6mm 0 3mm; color: #1e40af; }
+h4 { font-size: 10.5pt; margin: 4mm 0 2mm; }
+p { margin: 0 0 3mm; }
+ul, ol { margin: 0 0 4mm; padding-left: 6mm; }
+li { margin-bottom: 1.5mm; }
+a { color: #2563eb; text-decoration: none; }
+hr {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 8mm 0;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 4mm 0 6mm;
+  font-size: 9pt;
+  page-break-inside: avoid;
+}
+thead { display: table-header-group; }
+tr { page-break-inside: avoid; }
+th {
+  background: #1e40af;
+  color: #fff;
+  font-weight: 600;
+  text-align: left;
+  padding: 2.5mm 3mm;
+}
+td {
+  border: 1px solid #cbd5e1;
+  padding: 2.5mm 3mm;
+  vertical-align: top;
+}
+tbody tr:nth-child(even) td { background: #f8fafc; }
+code {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  font-size: 8.5pt;
+  background: #f1f5f9;
+  padding: 0.5mm 1.5mm;
+  border-radius: 2px;
+  color: #0f172a;
+}
+pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 4mm;
+  border-radius: 3mm;
+  overflow-x: auto;
+  font-size: 8pt;
+  line-height: 1.45;
+  page-break-inside: avoid;
+  margin: 3mm 0 5mm;
+}
+pre code { background: transparent; color: inherit; padding: 0; }
+.diagram {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 3mm;
+  padding: 4mm;
+  margin: 4mm 0 6mm;
+  page-break-inside: avoid;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+.diagram svg { max-width: 100% !important; height: auto !important; }
+.toc-section { page-break-after: always; }
+.toc-section h2 { background: none; border: none; padding: 0; }
+.toc-section ol { font-size: 11pt; line-height: 1.8; }
+.toc-section a { color: #1e293b; }
+.section-block { page-break-inside: avoid; }
+strong { color: #0f172a; }
+</style>
+</head>
+<body>
+  <div class="cover">
+    <div class="cover-badge">Print Shop Operations Platform</div>
+    <h1>JobScheduler</h1>
+    <p class="tagline">
+      Service catalog &amp; instant pricing · MoMo deposits · Appointment slots ·
+      Production scheduling · Team chat · Analytics
+    </p>
+    <div class="cover-meta">
+      System documentation · Tech stack · API reference · Price list (GHS)<br/>
+      github.com/bvggies/jobscheduling · Generated 23 June 2026
+    </div>
+  </div>
+  <div class="content">
+    <h1>JobScheduler</h1>
+<p><strong>Print shop operations platform</strong> — service catalog &amp; instant pricing, MoMo deposits, appointment slots, production scheduling, team chat, and analytics.</p>
+<p>Built for a real print business workflow: customers order online with fixed GHS prices, pay an <strong>80% MoMo deposit</strong>, book <strong>system-generated time slots</strong>, and track production until completion.</p>
+<p>📄 <strong><a href="docs/JobScheduler-System-Guide.pdf">Download System Guide (PDF)</a></strong> — full visual documentation with diagrams, tech stack, API reference, and price list.</p>
+<p>To regenerate the PDF after editing this README: <code>npm run docs:pdf</code></p>
+<hr>
+<h2>Table of contents</h2>
+<ul>
+<li><a href="#system-at-a-glance">System at a glance</a></li>
+<li><a href="#how-the-business-flow-works">How the business flow works</a></li>
+<li><a href="#user-roles--portals">User roles &amp; portals</a></li>
+<li><a href="#tech-stack">Tech stack</a></li>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#service-catalog--pricing-ghs">Service catalog &amp; pricing (GHS)</a></li>
+<li><a href="#shop-hours--contact">Shop hours &amp; contact</a></li>
+<li><a href="#database-overview">Database overview</a></li>
+<li><a href="#api-reference">API reference</a></li>
+<li><a href="#project-structure">Project structure</a></li>
+<li><a href="#local-development">Local development</a></li>
+<li><a href="#database-migrations">Database migrations</a></li>
+<li><a href="#deployment-vercel--neon">Deployment (Vercel + Neon)</a></li>
+<li><a href="#environment-variables">Environment variables</a></li>
+<li><a href="#related-docs">Related docs</a></li>
+</ul>
+<hr>
+<h2>System at a glance</h2>
+<div class="diagram"><pre class="mermaid">flowchart LR
+  subgraph clients [Web clients]
+    A[Admin dashboard]
+    W[Worker portal]
+    C[Customer portal]
+  end
+
+  subgraph vercel [Vercel]
+    SPA[React SPA /static]
+    API[Express API /api]
+  end
+
+  subgraph data [Data & realtime]
+    DB[(Neon PostgreSQL)]
+    WS[Socket.IO local only]
+  end
+
+  A --> SPA
+  W --> SPA
+  C --> SPA
+  SPA --> API
+  SPA -. optional .-> WS
+  API --> DB
+  WS --> DB</pre></div><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Frontend</strong></td>
+<td>React 19, React Router 7, CRA</td>
+<td>Three role-based portals</td>
+</tr>
+<tr>
+<td><strong>Backend</strong></td>
+<td>Node.js, Express 5</td>
+<td>REST API + JWT auth</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>PostgreSQL (Neon)</td>
+<td>Jobs, services, users, chat, alerts</td>
+</tr>
+<tr>
+<td><strong>Hosting</strong></td>
+<td>Vercel</td>
+<td>Static SPA + serverless API</td>
+</tr>
+<tr>
+<td><strong>Realtime</strong></td>
+<td>Socket.IO</td>
+<td>Live chat (long-lived Node host only)</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>How the business flow works</h2>
+<p>Every customer order follows the same rules:</p>
+<div class="diagram"><pre class="mermaid">flowchart TD
+  S1[1. Select service & size] --> S2[2. See unit price & total]
+  S2 --> S3{Quote required?}
+  S3 -->|No| S4[3. Pay 80% MoMo deposit]
+  S3 -->|Yes| S6[3. Book appointment slot]
+  S4 --> S5[Enter MoMo ref + amount]
+  S5 --> S6
+  S6 --> S7[4. Review & submit order]
+  S7 --> S8[Admin verifies MoMo]
+  S8 --> S9[Production: Ready → In Progress → Completed]</pre></div><h3>Customer rules (enforced in code)</h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Instant pricing</strong></td>
+<td>Prices loaded from <code>shop_services</code> DB table; total = unit × quantity (or tiered yards)</td>
+</tr>
+<tr>
+<td><strong>80% deposit</strong></td>
+<td><code>deposit_required = total × 0.8</code>; validated on client and server</td>
+</tr>
+<tr>
+<td><strong>MoMo before slot</strong></td>
+<td>Wizard order: Service → <strong>Deposit</strong> → Slot → Submit</td>
+</tr>
+<tr>
+<td><strong>Slots only</strong></td>
+<td>No manual date picker; <code>/api/schedule/available-slots</code></td>
+</tr>
+<tr>
+<td><strong>5 PM cutoff</strong></td>
+<td>Last bookable slot ends at <strong>17:00</strong> (same-day rule)</td>
+</tr>
+<tr>
+<td><strong>Break excluded</strong></td>
+<td>No slots <strong>12:30 – 13:00</strong> daily</td>
+</tr>
+<tr>
+<td><strong>Work after deposit</strong></td>
+<td>Jobs cannot go <strong>Ready</strong> or enter auto-scheduler until deposit is <strong>Received</strong></td>
+</tr>
+<tr>
+<td><strong>Quote services</strong></td>
+<td>Digital Flag &amp; Signage: admin sets price → customer pays deposit</td>
+</tr>
+</tbody></table>
+<h3>MoMo payment flow</h3>
+<div class="diagram"><pre class="mermaid">sequenceDiagram
+  participant C as Customer
+  participant API as Express API
+  participant A as Admin
+
+  C->>API: Submit order + MoMo ref/amount/phone
+  API->>API: deposit_verification_status = pending
+  A->>API: Confirm or reject deposit
+  alt Confirmed
+    API->>API: deposit_status = Received
+    Note over API: Job can be scheduled / marked Ready
+  else Rejected
+    API->>C: Customer resubmits payment
+  end</pre></div><hr>
+<h2>User roles &amp; portals</h2>
+<div class="diagram"><pre class="mermaid">flowchart TB
+  subgraph admin [Admin /dashboard]
+    AD[Dashboard & analytics]
+    AJ[Jobs CRUD & payments]
+    AM[Machines & schedule]
+    AS[Services & price list]
+    AT[Team & feedback]
+    AC[Live chat]
+  end
+
+  subgraph worker [Worker /worker]
+    WD[Assigned jobs]
+    WS2[Schedule view]
+    WA[Activity & alerts]
+  end
+
+  subgraph customer [Customer /portal]
+    CP[Dashboard & price list]
+    CO[Order service wizard]
+    CJ[Job timeline & MoMo]
+    CF[Feedback & chat]
+  end</pre></div><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Login</th>
+<th>Main capabilities</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Admin</strong></td>
+<td><code>/login</code> → <code>/dashboard</code></td>
+<td>Full shop control: jobs, machines, schedule, services/prices, MoMo verification, analytics, team</td>
+</tr>
+<tr>
+<td><strong>Worker</strong></td>
+<td><code>/login</code> → <code>/worker</code></td>
+<td>Assigned jobs, status updates, schedule, alerts, chat</td>
+</tr>
+<tr>
+<td><strong>Customer</strong></td>
+<td><code>/register</code> or <code>/login</code> → <code>/portal</code></td>
+<td>Order services, pay MoMo deposit, book slots, track jobs, message shop</td>
+</tr>
+</tbody></table>
+<h3>Admin routes</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Feature</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/dashboard</code></td>
+<td>KPIs, job overview</td>
+</tr>
+<tr>
+<td><code>/jobs</code></td>
+<td>Job list, search, status</td>
+</tr>
+<tr>
+<td><code>/jobs/new</code>, <code>/jobs/edit/:id</code></td>
+<td>Manual job entry (back office)</td>
+</tr>
+<tr>
+<td><code>/machines</code></td>
+<td>Equipment &amp; substrate compatibility</td>
+</tr>
+<tr>
+<td><code>/schedule</code></td>
+<td>Timeline + drag-and-drop + auto-schedule</td>
+</tr>
+<tr>
+<td><code>/services</code></td>
+<td><strong>Upload/edit service catalog &amp; GHS prices</strong></td>
+</tr>
+<tr>
+<td><code>/analytics</code></td>
+<td>Revenue, utilization, on-time rate</td>
+</tr>
+<tr>
+<td><code>/alerts</code></td>
+<td>Risk, late, rush, underutilization</td>
+</tr>
+<tr>
+<td><code>/team</code></td>
+<td>Customers &amp; workers</td>
+</tr>
+<tr>
+<td><code>/feedback</code></td>
+<td>Customer message threads</td>
+</tr>
+<tr>
+<td><code>/chat</code></td>
+<td>Live team messaging</td>
+</tr>
+<tr>
+<td><code>/activity</code></td>
+<td>Shop-floor activity feed</td>
+</tr>
+</tbody></table>
+<h3>Customer routes</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Feature</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/portal</code></td>
+<td>Dashboard, how-it-works, full price list</td>
+</tr>
+<tr>
+<td><code>/portal/jobs/new</code></td>
+<td><strong>Order wizard</strong> (service → deposit → slot)</td>
+</tr>
+<tr>
+<td><code>/portal/jobs/:id</code></td>
+<td>Job detail, MoMo status, timeline</td>
+</tr>
+<tr>
+<td><code>/portal/feedback</code></td>
+<td>Feedback to shop</td>
+</tr>
+<tr>
+<td><code>/portal/chat</code></td>
+<td>Live chat</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Tech stack</h2>
+<h3>Frontend</h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>React</td>
+<td>19.x</td>
+<td>UI framework</td>
+</tr>
+<tr>
+<td>React Router</td>
+<td>7.x</td>
+<td>Role-based routing</td>
+</tr>
+<tr>
+<td>Axios</td>
+<td>1.x</td>
+<td>HTTP client + JWT interceptors</td>
+</tr>
+<tr>
+<td>date-fns</td>
+<td>4.x</td>
+<td>Dates &amp; formatting</td>
+</tr>
+<tr>
+<td>Framer Motion</td>
+<td>12.x</td>
+<td>Page transitions</td>
+</tr>
+<tr>
+<td>AOS</td>
+<td>2.x</td>
+<td>Scroll animations</td>
+</tr>
+<tr>
+<td>@dnd-kit</td>
+<td>6.x</td>
+<td>Schedule drag-and-drop</td>
+</tr>
+<tr>
+<td>Socket.IO client</td>
+<td>4.x</td>
+<td>Live chat</td>
+</tr>
+<tr>
+<td>React Icons</td>
+<td>5.x</td>
+<td>Icon set</td>
+</tr>
+<tr>
+<td>Create React App</td>
+<td>5.x</td>
+<td>Build toolchain</td>
+</tr>
+</tbody></table>
+<h3>Backend</h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Express</td>
+<td>5.x</td>
+<td>HTTP API</td>
+</tr>
+<tr>
+<td>pg</td>
+<td>8.x</td>
+<td>PostgreSQL pool</td>
+</tr>
+<tr>
+<td>bcryptjs</td>
+<td>3.x</td>
+<td>Password hashing</td>
+</tr>
+<tr>
+<td>jsonwebtoken</td>
+<td>9.x</td>
+<td>JWT sessions (7-day)</td>
+</tr>
+<tr>
+<td>Socket.IO</td>
+<td>4.x</td>
+<td>Chat WebSocket</td>
+</tr>
+<tr>
+<td>dotenv</td>
+<td>17.x</td>
+<td>Environment config</td>
+</tr>
+</tbody></table>
+<h3>Infrastructure</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Vercel</strong></td>
+<td>Hosts React build + <code>/api</code> serverless functions</td>
+</tr>
+<tr>
+<td><strong>Neon</strong></td>
+<td>Serverless PostgreSQL with SSL</td>
+</tr>
+<tr>
+<td><strong>GitHub</strong></td>
+<td>Source control &amp; Vercel deploy trigger</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Architecture</h2>
+<div class="diagram"><pre class="mermaid">flowchart TB
+  subgraph browser [Browser]
+    RC[React components]
+    CTX[Auth / Theme / Chat contexts]
+    API_CLIENT[services/api.js]
+  end
+
+  subgraph serverless [server/ + api/index.js]
+    MW[JWT middleware]
+    R_JOBS[routes/jobs]
+    R_SVC[routes/services]
+    R_SCH[routes/schedule]
+    R_AUTH[routes/auth]
+    STORE[utils/serviceStore]
+    SLOTS[utils/appointmentSlots]
+    SCHED[utils/scheduler]
+  end
+
+  RC --> CTX --> API_CLIENT
+  API_CLIENT -->|REST /api/*| MW
+  MW --> R_JOBS & R_SVC & R_SCH & R_AUTH
+  R_SVC --> STORE
+  R_JOBS --> STORE & SLOTS
+  R_SCH --> SLOTS & SCHED
+  STORE & R_JOBS --> DB[(PostgreSQL)]</pre></div><h3>Smart scheduling (production)</h3>
+<p>Auto-scheduler (<code>server/utils/scheduler.js</code>):</p>
+<ol>
+<li>Pick jobs with <strong>deposit received</strong>, no machine assigned  </li>
+<li>Sort by <strong>priority</strong> (Rush first) then <strong>due date</strong>  </li>
+<li><strong>Group by substrate + finishing</strong> to reduce changeovers  </li>
+<li>Assign first <strong>compatible machine</strong>; slot after last job on that machine  </li>
+<li>Estimate duration from product type + quantity</li>
+</ol>
+<p>Manual overrides via <code>/schedule</code> drag-and-drop or <code>PUT /api/schedule/:jobId</code>.</p>
+<h3>Authentication</h3>
+<ul>
+<li>JWT in <code>localStorage</code> (<code>jobscheduler_token</code>)</li>
+<li>Roles: <code>admin</code>, <code>worker</code>, <code>customer</code></li>
+<li>Production fallback: JWT secret derived from <code>DATABASE_URL</code> if <code>JWT_SECRET</code> unset (set <code>JWT_SECRET</code> in prod for best practice)</li>
+<li>Bootstrap admin via <code>INITIAL_ADMIN_EMAIL</code> / <code>INITIAL_ADMIN_PASSWORD</code> when no admin exists</li>
+</ul>
+<hr>
+<h2>Service catalog &amp; pricing (GHS)</h2>
+<p>Prices live in the <strong><code>shop_services</code></strong> database table (seeded on first catalog load). Admins edit them at <strong><code>/services</code></strong>.</p>
+<h3>Fixed-size services</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Options &amp; prices (GHS)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>DTF Printing</strong></td>
+<td>A4 ₵5 · A3 ₵10 · A2 ₵20</td>
+</tr>
+<tr>
+<td><strong>Banner Printing</strong></td>
+<td>3×4 ₵180 · 4×4 ₵200 · 5×4 ₵230 · 6×4 ₵250 · 8×4 ₵300 · 8×8 ₵350</td>
+</tr>
+<tr>
+<td><strong>Sticker Printing</strong></td>
+<td>A4 ₵5 · A3 ₵10 · A2 ₵15 · 4out ₵20</td>
+</tr>
+<tr>
+<td><strong>Wooden Frame</strong></td>
+<td>12×16 ₵160 · 15×19 ₵200 · 19×23 ₵300 · 20×30 ₵450 · 24×36 ₵600</td>
+</tr>
+<tr>
+<td><strong>T-Shirt Printing</strong></td>
+<td>Jersey ₵50 · Silk ₵55 · Cotton ₵60 · Lacoste ₵70</td>
+</tr>
+</tbody></table>
+<h3>Per square foot</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Price</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sticker</td>
+<td>₵3.0 / sq ft</td>
+</tr>
+<tr>
+<td>Banner</td>
+<td>₵3.5 / sq ft</td>
+</tr>
+<tr>
+<td>One-way vision</td>
+<td>₵6.0 / sq ft</td>
+</tr>
+<tr>
+<td>Reflective sticker</td>
+<td>₵8.0 / sq ft</td>
+</tr>
+</tbody></table>
+<h3>Tiered</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Tiers</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Material — Cloth Printing</strong></td>
+<td>1–49 yards ₵45/yd · 50–99 ₵43/yd · 100+ ₵40/yd</td>
+</tr>
+</tbody></table>
+<h3>Quote on request</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Digital Flag Printing</td>
+<td>Available now — admin sets quote</td>
+</tr>
+<tr>
+<td>Signage / 3D Signboard</td>
+<td>Price depends on size and letters</td>
+</tr>
+</tbody></table>
+<p><strong>Deposit rule:</strong> all priced orders require <strong>80% of total</strong> via MoMo before production starts.</p>
+<hr>
+<h2>Shop hours &amp; contact</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Mon – Thu</strong></td>
+<td>7:30 AM – 6:00 PM</td>
+</tr>
+<tr>
+<td><strong>Friday</strong></td>
+<td>7:30 AM – 7:00 PM</td>
+</tr>
+<tr>
+<td><strong>Saturday</strong></td>
+<td>10:00 AM – 6:00 PM</td>
+</tr>
+<tr>
+<td><strong>Sunday</strong></td>
+<td>Closed</td>
+</tr>
+<tr>
+<td><strong>Break</strong></td>
+<td>Daily 12:30 PM – 1:00 PM</td>
+</tr>
+<tr>
+<td><strong>Same-day cutoff</strong></td>
+<td>Send work by <strong>5:00 PM</strong> latest</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>Contact</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Call</strong></td>
+<td>0542917636 / 0207924080</td>
+</tr>
+<tr>
+<td><strong>WhatsApp</strong></td>
+<td>0542917636</td>
+</tr>
+<tr>
+<td><strong>MoMo</strong></td>
+<td>05429176360 — Tetteh Henry</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Database overview</h2>
+<p>Schema is applied via <code>server/apply-schema.js</code> (no separate SQL migration files).</p>
+<div class="diagram"><pre class="mermaid">erDiagram
+  users ||--o{ jobs : "owns (customer)"
+  users ||--o{ jobs : "assigned_worker"
+  shop_services ||--o{ jobs : "service_id"
+  machines ||--o{ jobs : "machine_id"
+  jobs ||--o{ job_updates : "activity"
+  jobs ||--o{ alerts : "alerts"
+  users ||--o{ feedback : "feedback"
+  chat_threads ||--o{ chat_messages : "messages"
+
+  users {
+    int id PK
+    string email
+    string role
+    string name
+  }
+
+  shop_services {
+    string id PK
+    string name
+    string pricing_type
+    jsonb config
+    boolean active
+  }
+
+  jobs {
+    int id PK
+    string po_number
+    string service_id
+    decimal total_cost
+    decimal deposit_required
+    string deposit_verification_status
+    date due_date
+    time due_time
+    string status
+  }
+
+  machines {
+    int id PK
+    string name
+    string type
+    text[] compatibility
+  }</pre></div><h3>Key <code>jobs</code> payment fields</h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>total_cost</code></td>
+<td>Order total (GHS)</td>
+</tr>
+<tr>
+<td><code>deposit_required</code></td>
+<td>80% of total</td>
+</tr>
+<tr>
+<td><code>deposit_received</code></td>
+<td>Confirmed amount</td>
+</tr>
+<tr>
+<td><code>deposit_status</code></td>
+<td><code>Pending</code> / <code>Received</code></td>
+</tr>
+<tr>
+<td><code>deposit_momo_phone</code></td>
+<td>Customer MoMo number</td>
+</tr>
+<tr>
+<td><code>deposit_momo_reference</code></td>
+<td>Transaction ID</td>
+</tr>
+<tr>
+<td><code>deposit_submitted_amount</code></td>
+<td>Amount customer paid</td>
+</tr>
+<tr>
+<td><code>deposit_verification_status</code></td>
+<td><code>none</code> / <code>pending</code> / <code>confirmed</code> / <code>rejected</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>API reference</h2>
+<p>Base URL: <code>{host}/api</code> — all protected routes need <code>Authorization: Bearer &lt;token&gt;</code>.</p>
+<h3>Auth</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/auth/register</code></td>
+<td>Customer registration</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/auth/login</code></td>
+<td>Login (all roles)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/auth/me</code></td>
+<td>Current user profile</td>
+</tr>
+</tbody></table>
+<h3>Services &amp; catalog</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/services/catalog</code></td>
+<td>Public</td>
+<td>Active services, price list, hours, contact</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/services/calculate</code></td>
+<td>Public</td>
+<td>Price calculation</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/services/manage</code></td>
+<td>Admin</td>
+<td>All services</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/services/manage</code></td>
+<td>Admin</td>
+<td>Create service</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/services/manage/:id</code></td>
+<td>Admin</td>
+<td>Update service</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/services/manage/:id</code></td>
+<td>Admin</td>
+<td>Deactivate service</td>
+</tr>
+</tbody></table>
+<h3>Jobs</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/jobs</code></td>
+<td>All</td>
+<td>List jobs (scoped by role)</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/jobs</code></td>
+<td>Customer/Admin</td>
+<td>Create job (customer = catalog flow)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/jobs/:id</code></td>
+<td>All</td>
+<td>Job detail</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/jobs/:id</code></td>
+<td>Admin</td>
+<td>Update job</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/jobs/:id/status</code></td>
+<td>Admin/Worker</td>
+<td>Status change</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/jobs/:id/submit-deposit</code></td>
+<td>Customer</td>
+<td>Submit MoMo payment</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/jobs/:id/verify-deposit</code></td>
+<td>Admin</td>
+<td>Confirm/reject MoMo</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/jobs/:id/quote</code></td>
+<td>Admin</td>
+<td>Set quote pricing</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/jobs/:id/payment</code></td>
+<td>Admin</td>
+<td>Record deposit/final payment</td>
+</tr>
+</tbody></table>
+<h3>Schedule</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/schedule/available-slots</code></td>
+<td>All</td>
+<td>Bookable appointment slots</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/schedule</code></td>
+<td>Admin/Worker</td>
+<td>Production schedule</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/schedule/auto-schedule</code></td>
+<td>Admin</td>
+<td>Run auto-scheduler</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/schedule/:jobId</code></td>
+<td>Admin</td>
+<td>Manual schedule update</td>
+</tr>
+</tbody></table>
+<h3>Other</h3>
+<table>
+<thead>
+<tr>
+<th>Prefix</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/machines</code></td>
+<td>Equipment CRUD</td>
+</tr>
+<tr>
+<td><code>/analytics</code></td>
+<td>Admin reports</td>
+</tr>
+<tr>
+<td><code>/alerts</code></td>
+<td>Notifications</td>
+</tr>
+<tr>
+<td><code>/users</code></td>
+<td>Team management</td>
+</tr>
+<tr>
+<td><code>/feedback</code></td>
+<td>Customer feedback</td>
+</tr>
+<tr>
+<td><code>/activity</code></td>
+<td>Job activity feed</td>
+</tr>
+<tr>
+<td><code>/chat</code></td>
+<td>Messaging threads</td>
+</tr>
+<tr>
+<td>GET <code>/health</code></td>
+<td>API health check</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Project structure</h2>
+<pre><code>jobscheduling-1/
+├── api/
+│   └── index.js                 # Vercel serverless entry → server/index.js
+├── public/                      # Static assets, logo, manifest
+├── src/
+│   ├── components/
+│   │   ├── ServiceOrderForm.js  # Customer order wizard
+│   │   ├── DepositPaymentForm.js
+│   │   ├── ShopInfoPanel.js
+│   │   ├── JobPayment.js        # Admin MoMo verify + quotes
+│   │   └── Layout/              # Navbar, Sidebar
+│   ├── context/                 # Auth, Theme, ChatSocket
+│   ├── hooks/
+│   │   └── useServiceCatalog.js
+│   ├── layouts/                 # Admin, Worker, Customer shells
+│   ├── pages/
+│   │   ├── customer/            # Customer portal pages
+│   │   ├── worker/              # Worker portal pages
+│   │   └── ServiceManagement.js # Admin price list editor
+│   ├── services/api.js          # Axios + API modules
+│   └── utils/
+│       ├── shopConfig.js        # Hours, contact, 80% deposit
+│       └── servicePricing.js    # Client-side price math
+├── server/
+│   ├── config/database.js       # Pool + schema init
+│   ├── routes/                  # Express route modules
+│   ├── utils/
+│   │   ├── serviceStore.js      # DB-backed catalog
+│   │   ├── appointmentSlots.js  # Slot generation (5 PM cutoff)
+│   │   ├── scheduler.js         # Auto-scheduler
+│   │   └── catalogData.js       # Default seed prices
+│   ├── apply-schema.js          # Run migrations
+│   └── index.js                 # Express app
+├── vercel.json                  # Vercel builds & routes
+└── package.json</code></pre><hr>
+<h2>Local development</h2>
+<h3>Prerequisites</h3>
+<ul>
+<li>Node.js 18+ (20+ recommended)</li>
+<li>PostgreSQL (Neon connection string or local)</li>
+<li>npm</li>
+</ul>
+<h3>Install &amp; run</h3>
+<pre><code># Clone
+git clone https://github.com/bvggies/jobscheduling.git
+cd jobscheduling
+
+# Frontend
+npm install
+
+# Backend
+cd server && npm install && cd ..
+
+# Environment — root .env
+echo 'REACT_APP_API_URL=http://localhost:5000/api' &gt; .env
+
+# Environment — server/.env
+cat &gt; server/.env &lt;&lt; 'EOF'
+DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
+PORT=5000
+NODE_ENV=development
+JWT_SECRET=dev-secret-change-me
+INITIAL_ADMIN_EMAIL=admin@yourshop.local
+INITIAL_ADMIN_PASSWORD=YourSecurePass123
+EOF
+
+# Apply schema
+cd server && node apply-schema.js && cd ..
+
+# Terminal 1 — API
+npm run server
+
+# Terminal 2 — React
+npm start</code></pre><p>Open <strong><a href="http://localhost:3000">http://localhost:3000</a></strong></p>
+<table>
+<thead>
+<tr>
+<th>Script</th>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Frontend dev</td>
+<td><code>npm start</code></td>
+<td>CRA dev server :3000</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td><code>npm run server</code></td>
+<td>Express + Socket.IO :5000</td>
+</tr>
+<tr>
+<td>Backend watch</td>
+<td><code>npm run server:dev</code></td>
+<td>Nodemon</td>
+</tr>
+<tr>
+<td>Production build</td>
+<td><code>npm run build</code></td>
+<td>Output to <code>build/</code></td>
+</tr>
+<tr>
+<td>Schema</td>
+<td><code>cd server &amp;&amp; node apply-schema.js</code></td>
+<td>Apply DB schema</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Database migrations</h2>
+<p>There are no versioned SQL migration files. Schema is managed in <code>server/config/database.js</code> and applied with:</p>
+<pre><code>cd server
+DATABASE_URL="your-neon-connection-string" node apply-schema.js</code></pre><p>This creates tables, indexes, default machines, and bootstraps an admin user if none exists.</p>
+<hr>
+<h2>Deployment (Vercel + Neon)</h2>
+<div class="diagram"><pre class="mermaid">flowchart LR
+  GH[GitHub push] --> VC[Vercel build]
+  VC --> STATIC[Static React /build]
+  VC --> FN[Serverless /api/index.js]
+  FN --> NEON[(Neon PostgreSQL)]
+  STATIC --> USERS[Users browser]
+  USERS --> STATIC
+  USERS --> FN</pre></div><ol>
+<li>Create a <a href="https://neon.tech">Neon</a> project and copy the connection string  </li>
+<li>Import repo in <a href="https://vercel.com">Vercel</a>  </li>
+<li>Set environment variables (see below)  </li>
+<li>Deploy — run <code>apply-schema.js</code> against Neon once  </li>
+<li>Set <code>REACT_APP_API_URL=https://your-app.vercel.app/api</code> and redeploy</li>
+</ol>
+<p>See also: <a href="DEPLOYMENT.md">DEPLOYMENT.md</a> · <a href="VERCEL_DEPLOY.md">VERCEL_DEPLOY.md</a> · <a href="SETUP_ENV.md">SETUP_ENV.md</a></p>
+<h3>Socket.IO on Vercel</h3>
+<p>Vercel serverless <strong>cannot host WebSockets</strong>. Live chat uses HTTP on Vercel by default. For realtime chat, set <code>REACT_APP_WS_ORIGIN</code> to a long-lived Node host running <code>server/index.js</code>.</p>
+<hr>
+<h2>Environment variables</h2>
+<h3>Vercel / production</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DATABASE_URL</code></td>
+<td>Yes</td>
+<td>Neon PostgreSQL connection string</td>
+</tr>
+<tr>
+<td><code>NODE_ENV</code></td>
+<td>Yes</td>
+<td><code>production</code></td>
+</tr>
+<tr>
+<td><code>JWT_SECRET</code></td>
+<td>Recommended</td>
+<td>Signing key for JWT</td>
+</tr>
+<tr>
+<td><code>REACT_APP_API_URL</code></td>
+<td>Yes</td>
+<td>e.g. <code>https://your-app.vercel.app/api</code></td>
+</tr>
+<tr>
+<td><code>INITIAL_ADMIN_EMAIL</code></td>
+<td>Optional</td>
+<td>First admin bootstrap email</td>
+</tr>
+<tr>
+<td><code>INITIAL_ADMIN_PASSWORD</code></td>
+<td>Optional</td>
+<td>First admin bootstrap password</td>
+</tr>
+<tr>
+<td><code>REACT_APP_WS_ORIGIN</code></td>
+<td>Optional</td>
+<td>Socket.IO host for live chat</td>
+</tr>
+<tr>
+<td><code>REACT_APP_CHAT_SOCKET</code></td>
+<td>Optional</td>
+<td><code>true</code> / <code>false</code> to force chat socket</td>
+</tr>
+</tbody></table>
+<h3>Local (<code>server/.env</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DATABASE_URL</code></td>
+<td>Postgres connection</td>
+</tr>
+<tr>
+<td><code>PORT</code></td>
+<td>API port (default 5000)</td>
+</tr>
+<tr>
+<td><code>JWT_SECRET</code></td>
+<td>JWT signing secret</td>
+</tr>
+</tbody></table>
+<h3>Local (root <code>.env</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>REACT_APP_API_URL</code></td>
+<td><code>http://localhost:5000/api</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Related docs</h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong><a href="docs/JobScheduler-System-Guide.pdf">JobScheduler-System-Guide.pdf</a></strong></td>
+<td><strong>Full visual PDF</strong> — diagrams, tech stack, flows, API, pricing</td>
+</tr>
+<tr>
+<td><a href="QUICKSTART.md">QUICKSTART.md</a></td>
+<td>Fast setup guide</td>
+</tr>
+<tr>
+<td><a href="DEPLOYMENT.md">DEPLOYMENT.md</a></td>
+<td>Full deploy walkthrough</td>
+</tr>
+<tr>
+<td><a href="VERCEL_DEPLOY.md">VERCEL_DEPLOY.md</a></td>
+<td>Vercel-specific notes</td>
+</tr>
+<tr>
+<td><a href="SETUP_ENV.md">SETUP_ENV.md</a></td>
+<td>Environment configuration</td>
+</tr>
+<tr>
+<td><a href="TROUBLESHOOTING.md">TROUBLESHOOTING.md</a></td>
+<td>Common issues</td>
+</tr>
+<tr>
+<td><a href="START_SERVER.md">START_SERVER.md</a></td>
+<td>Running the API locally</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>License</h2>
+<p>MIT License</p>
+<h2>Support</h2>
+<p>Open an issue on <a href="https://github.com/bvggies/jobscheduling/issues">GitHub</a>.</p>
+
+  </div>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#dbeafe',
+        primaryTextColor: '#0f172a',
+        primaryBorderColor: '#2563eb',
+        lineColor: '#475569',
+        secondaryColor: '#f1f5f9',
+        tertiaryColor: '#fff',
+        fontFamily: 'Segoe UI, system-ui, sans-serif',
+        fontSize: '13px',
+      },
+      flowchart: { htmlLabels: true, curve: 'basis' },
+      securityLevel: 'loose',
+    });
+    await mermaid.run({ querySelector: '.mermaid' });
+    document.body.setAttribute('data-mermaid-ready', 'true');
+  </script>
+</body>
+</html>

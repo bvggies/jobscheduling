@@ -27,3 +27,6 @@ yarn-error.log*
 # server
 server/node_modules
 server/.env
+
+# pdf generator
+scripts/node_modules
